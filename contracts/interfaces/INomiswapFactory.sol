@@ -3,6 +3,8 @@ pragma solidity >=0.5.0;
 interface INomiswapFactory {
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
+    function invPhiMinusOne() external view returns (uint224);
+
     function feeTo() external view returns (address);
     function feeToSetter() external view returns (address);
 

@@ -4,10 +4,16 @@ import './interfaces/INomiswapFactory.sol';
 import './NomiswapPair.sol';
 
 contract NomiswapFactory is INomiswapFactory {
+    using UQ112x112 for uint224;
+
+    uint224 private constant UQ_1 = 2**112;
+
     bytes32 public constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(NomiswapPair).creationCode));
 
     address public feeTo;
     address public feeToSetter;
+    uint224 public invPhiMinusOne = 5 * UQ_1 /*calcInvPhiMinusOne(UQ_1.uqdiv(6))*/;
+
 
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
@@ -20,6 +26,15 @@ contract NomiswapFactory is INomiswapFactory {
 
     function allPairsLength() external view returns (uint) {
         return allPairs.length;
+    }
+
+    function calcInvPhiMinusOne(uint112 phi) private pure returns (uint224) {
+        return UQ_1.uqdiv(phi) - UQ_1;
+    }
+
+    function setPhi(uint112 phi) external {
+        require(msg.sender == feeToSetter, 'Nomiswap: FORBIDDEN');
+        invPhiMinusOne = calcInvPhiMinusOne(phi);
     }
 
     function createPair(address tokenA, address tokenB) external returns (address pair) {
