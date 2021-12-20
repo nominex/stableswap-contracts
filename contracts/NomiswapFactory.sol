@@ -12,7 +12,7 @@ contract NomiswapFactory is INomiswapFactory {
 
     address public feeTo;
     address public feeToSetter;
-    uint224 public invPhiMinusOne = 5 * UQ_1 /*calcInvPhiMinusOne(UQ_1.uqdiv(6))*/;
+    uint224 public invPhiMinusOne = 3 * UQ_1 /*calcInvPhiMinusOne(UQ_1.uqdiv(6))*/;
 
 
     mapping(address => mapping(address => address)) public getPair;
