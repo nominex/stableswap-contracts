@@ -20,12 +20,8 @@ module.exports = {
   // Set default mocha options here, use special reporters etc.
   mocha: {
     useColors: true,
-    timeout: 100000
+    timeout: 100000,
   },
-
-  plugins: [
-    "truffle-plugin-debugger"
-  ],
 
   // Configure your compilers
   compilers: {
@@ -36,8 +32,8 @@ module.exports = {
           enabled: true,
           runs: 1000,   // Optimize for how many times you intend to run the code
         },
-        evmVersion: 'istanbul'
+        evmVersion: 'istanbul',
       },
-    }
-  }
+    },
+  },
 }
