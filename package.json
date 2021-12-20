@@ -39,12 +39,13 @@
     "compile": "waffle .waffle.json",
     "pretest": "yarn compile",
     "test": "mocha",
-    "prepublishOnly": "yarn test"
+    "prepublishOnly": "yarn test",
+    "local": "truffle migrate --network local"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "truffle-hdwallet-provider": "^1.0.17",
-    "truffle": "^5.1.41",
+    "@truffle/hdwallet-provider": "2.0.0",
+    "truffle": "5.4.25",
     "truffle-flattener": "^1.4.4"
   }
 }
