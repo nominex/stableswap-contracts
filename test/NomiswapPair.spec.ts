@@ -175,7 +175,7 @@ describe('NomiswapPair', () => {
     await mineBlock(provider, (await provider.getBlock('latest')).timestamp + 1)
     const tx = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides)
     const receipt = await tx.wait()
-    expect(receipt.gasUsed).to.eq(73462)
+    expect(receipt.gasUsed).to.eq(74294)
   })
 
   it('burn', async () => {
@@ -218,6 +218,7 @@ describe('NomiswapPair', () => {
 
     const initialPrice = encodePrice(token0Amount, token1Amount)
     expect(await pair.price0CumulativeLast()).to.eq(initialPrice[0])
+
     expect(await pair.price1CumulativeLast()).to.eq(initialPrice[1])
     expect((await pair.getReserves())[2]).to.eq(blockTimestamp + 1)
 
@@ -271,12 +272,12 @@ describe('NomiswapPair', () => {
     const expectedLiquidity = expandTo18Decimals(1000)
     await pair.transfer(pair.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY))
     await pair.burn(wallet.address, overrides)
-    expect(await pair.totalSupply()).to.eq(MINIMUM_LIQUIDITY.add('374625795658571'))
-    expect(await pair.balanceOf(other.address)).to.eq('374625795658571')
+    expect(await pair.totalSupply()).to.eq(MINIMUM_LIQUIDITY.add('1048952935180691'))
+    expect(await pair.balanceOf(other.address)).to.eq('1048952935180691')
 
     // using 1000 here instead of the symbolic MINIMUM_LIQUIDITY because the amounts only happen to be equal...
     // ...because the initial liquidity amounts were equal
-    expect(await token0.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('374252525546167'))
-    expect(await token1.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('375000280969452'))
+    expect(await token0.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('1047907071529270'))
+    expect(await token1.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('1050000786714466'))
   })
 })

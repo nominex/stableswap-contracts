@@ -9,6 +9,8 @@ import './interfaces/INomiswapFactory.sol';
 import './interfaces/INomiswapCallee.sol';
 
 contract NomiswapPair is INomiswapPair, NomiswapERC20 {
+    uint constant Q112 = 2**112;
+
     using SafeMath  for uint;
     using UQ112x112 for uint224;
 
@@ -26,6 +28,8 @@ contract NomiswapPair is INomiswapPair, NomiswapERC20 {
     uint public price0CumulativeLast;
     uint public price1CumulativeLast;
     uint public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
+    uint32 public swapFee = 2; // uses 0.2% default
+    uint public devFee = uint(Q112*(10-7))/uint(7); // 70% (1/0.7-1)
 
     uint private unlocked = 1;
     modifier lock() {
@@ -69,6 +73,20 @@ contract NomiswapPair is INomiswapPair, NomiswapERC20 {
         token1 = _token1;
     }
 
+    function setSwapFee(uint32 _swapFee) external {
+        require(_swapFee > 0, "BiswapPair: lower then 0");
+        require(msg.sender == factory, 'BiswapPair: FORBIDDEN');
+        require(_swapFee <= 1000, 'BiswapPair: FORBIDDEN_FEE');
+        swapFee = _swapFee;
+    }
+
+    function setDevFee(uint _devFee) external {
+        require(_devFee != 0, "Nomiswap: dev fee 0");
+        require(msg.sender == factory, 'Nomiswap: FORBIDDEN');
+        require(_devFee <= 500 * Q112, 'Nomiswap: FORBIDDEN_FEE');
+        devFee = _devFee;
+    }
+
     // update reserves and, on the first call per block, price accumulators
     function _update(uint balance0, uint balance1, uint112 _reserve0, uint112 _reserve1) private {
         require(balance0 <= uint112(-1) && balance1 <= uint112(-1), 'Nomiswap: OVERFLOW');
@@ -96,7 +114,7 @@ contract NomiswapPair is INomiswapPair, NomiswapERC20 {
                 uint rootKLast = Math.sqrt(_kLast);
                 if (rootK > rootKLast) {
                     uint numerator = totalSupply.mul(rootK.sub(rootKLast));
-                    uint denominator = (rootK.mul(INomiswapFactory(factory).invPhiMinusOne()) / UQ112x112.encode(1)).add(rootKLast);
+                    uint denominator = (rootK.mul(devFee)/Q112).add(rootKLast);
                     uint liquidity = numerator / denominator;
                     if (liquidity > 0) _mint(feeTo, liquidity);
                 }
@@ -177,8 +195,9 @@ contract NomiswapPair is INomiswapPair, NomiswapERC20 {
         uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, 'Nomiswap: INSUFFICIENT_INPUT_AMOUNT');
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
-        uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(2));
-        uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(2));
+        uint _swapFee = swapFee;
+        uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(_swapFee));
+        uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(_swapFee));
         require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'Nomiswap: K');
         }
 
