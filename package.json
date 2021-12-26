@@ -2,7 +2,7 @@
   "name": "@nominex/nomiswap-core",
   "description": "🎛 Core contracts for the nomiswap protocol",
   "version": "0.1.0",
-  "homepage": "https://nomiswap.finance",
+  "homepage": "https://nomiswap.io",
   "repository": {
     "type": "git",
     "url": "https://github.com/nominex/nomiswap-core.git"
@@ -10,6 +10,12 @@
   "publishConfig": {
     "registry": "http://registry.npmjs.org"
   },
+  "keywords": [
+    "Nomiwap",
+    "ethereum",
+    "v2",
+    "core"
+  ],
   "files": [
     "contracts",
     "build"
@@ -29,7 +35,10 @@
     "solc": "0.5.16",
     "truffle-plugin-verify": "^0.4.0",
     "ts-node": "^8.5.4",
-    "typescript": "^3.7.3"
+    "typescript": "^3.7.3",
+    "@truffle/hdwallet-provider": "2.0.0",
+    "truffle": "5.4.25",
+    "truffle-flattener": "^1.4.4"
   },
   "scripts": {
     "lint": "yarn prettier ./test/*.ts --check",
@@ -43,9 +52,5 @@
     "local": "truffle migrate --network local"
   },
   "license": "GPL-3.0-or-later",
-  "dependencies": {
-    "@truffle/hdwallet-provider": "2.0.0",
-    "truffle": "5.4.25",
-    "truffle-flattener": "^1.4.4"
-  }
+  "dependencies": {}
 }

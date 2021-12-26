@@ -9,7 +9,7 @@ import './interfaces/INomiswapFactory.sol';
 import './interfaces/INomiswapCallee.sol';
 
 contract NomiswapPair is INomiswapPair, NomiswapERC20 {
-    uint constant Q112 = 2**112;
+    uint224 constant Q112 = 2**112;
 
     using SafeMath  for uint;
     using UQ112x112 for uint224;
@@ -28,7 +28,7 @@ contract NomiswapPair is INomiswapPair, NomiswapERC20 {
     uint public price0CumulativeLast;
     uint public price1CumulativeLast;
     uint public kLast; // reserve0 * reserve1, as of immediately after the most recent liquidity event
-    uint32 public swapFee = 2; // uses 0.2% default
+    uint32 public swapFee = 1; // uses 0.1% default
     uint public devFee = uint(Q112*(10-7))/uint(7); // 70% (1/0.7-1)
 
     uint private unlocked = 1;
@@ -74,16 +74,16 @@ contract NomiswapPair is INomiswapPair, NomiswapERC20 {
     }
 
     function setSwapFee(uint32 _swapFee) external {
-        require(_swapFee > 0, "BiswapPair: lower then 0");
-        require(msg.sender == factory, 'BiswapPair: FORBIDDEN');
-        require(_swapFee <= 1000, 'BiswapPair: FORBIDDEN_FEE');
+        require(_swapFee > 0, "NomiswapPair: lower then 0");
+        require(msg.sender == factory, 'NomiswapPair: FORBIDDEN');
+        require(_swapFee <= 1000, 'NomiswapPair: FORBIDDEN_FEE');
         swapFee = _swapFee;
     }
 
     function setDevFee(uint _devFee) external {
-        require(_devFee != 0, "Nomiswap: dev fee 0");
-        require(msg.sender == factory, 'Nomiswap: FORBIDDEN');
-        require(_devFee <= 500 * Q112, 'Nomiswap: FORBIDDEN_FEE');
+        require(_devFee != 0, "NomiswapPair: dev fee 0");
+        require(msg.sender == factory, 'NomiswapPair: FORBIDDEN');
+        require(_devFee <= 500 * Q112, 'NomiswapPair: FORBIDDEN_FEE');
         devFee = _devFee;
     }
 

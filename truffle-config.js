@@ -1,20 +1,12 @@
-const HDWalletProvider = require('@truffle/hdwallet-provider')
-const fs = require('fs')
-const path = require('path')
-const localMnemonic = fs.readFileSync(path.join(__dirname, './.secret/local.secret')).toString().trim()
 
 module.exports = {
-  contracts_directory: path.join(__dirname, 'contracts'),
   networks: {
-    local: {
-      network_id: '*',
-      provider: () => new HDWalletProvider(localMnemonic, `http://127.0.0.1:7545`),
-      confirmations: 0,
-      deploymentPollingInterval: 1000,
-      skipDryRun: true,
-      timeoutBlocks: 4000,
-      networkCheckTimeout : 100,
-    },
+    development: {
+      host: "127.0.0.1",
+      port: 7545,
+      network_id: "97",
+      gas: 6721975,
+    }
   },
 
   // Set default mocha options here, use special reporters etc.
@@ -30,7 +22,7 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 1000,   // Optimize for how many times you intend to run the code
+          runs: 9999999,
         },
         evmVersion: 'istanbul',
       },
