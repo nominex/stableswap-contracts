@@ -1,0 +1,82 @@
+{
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount0",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount1",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "nomiswapCall",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "evm": {
+    "bytecode": {
+      "linkReferences": {},
+      "object": "",
+      "opcodes": "",
+      "sourceMap": ""
+    },
+    "deployedBytecode": {
+      "linkReferences": {},
+      "object": "",
+      "opcodes": "",
+      "sourceMap": ""
+    }
+  },
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount0\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount1\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"nomiswapCall\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/INomiswapCallee.sol\":\"INomiswapCallee\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":true,\"runs\":999999},\"remappings\":[]},\"sources\":{\"contracts/interfaces/INomiswapCallee.sol\":{\"keccak256\":\"0x0ad9856a6a4b4652acd03636808b21e3bb279b7d7fd9c93d3fbd584ceb8ab8db\",\"urls\":[\"bzz-raw://cc928ee7146b9ba2046695311385e8f25e9e8a90a120cf5563a71f7d2572adf3\",\"dweb:/ipfs/QmUVSHQLSqnUDxQFndErDTjFUUFb7C5c7PXbPQx2MWU9Vk\"]}},\"version\":1}",
+  "interface": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount0",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount1",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "nomiswapCall",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": ""
+}
