@@ -24,21 +24,23 @@
     "node": ">=10"
   },
   "devDependencies": {
+    "@truffle/hdwallet-provider": "2.0.0",
+    "@trufflesuite/web3-provider-engine": "^15.0.14",
     "@types/chai": "^4.2.6",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
     "ethereum-waffle": "^2.4.1",
     "ethereumjs-util": "^6.2.0",
     "mocha": "^6.2.2",
+    "nconv": "^1.0.0",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
     "solc": "0.5.16",
+    "truffle": "5.4.25",
+    "truffle-flattener": "^1.4.4",
     "truffle-plugin-verify": "^0.4.0",
     "ts-node": "^8.5.4",
-    "typescript": "^3.7.3",
-    "@truffle/hdwallet-provider": "2.0.0",
-    "truffle": "5.4.25",
-    "truffle-flattener": "^1.4.4"
+    "typescript": "^3.7.3"
   },
   "scripts": {
     "lint": "yarn prettier ./test/*.ts --check",
@@ -52,5 +54,7 @@
     "local": "truffle migrate --network local"
   },
   "license": "GPL-3.0-or-later",
-  "dependencies": {}
+  "dependencies": {
+    "nconf": "^0.11.3"
+  }
 }
