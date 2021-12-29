@@ -13,7 +13,7 @@ function provider(url) {
   const engine = new ProviderEngine();
   engine.addProvider(new WalletSubprovider(wallet, {}));
   engine.addProvider(new Web3Subprovider(new web3.providers.HttpProvider(url, { keepAlive: true, timeout: 1000000 })));
-  engine.on = (block) => {}
+  engine.on = (block) => { }
   engine.start();
   return engine;
 }
@@ -53,10 +53,17 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 9999999,
+          runs: 999999,
         },
         evmVersion: 'istanbul',
       },
     },
   },
+  plugins: [
+    "truffle-plugin-verify"
+  ],
+
+  api_keys: {
+    etherscan: nconf.get("ETHERSCAN_API_KEY")
+  }
 }
