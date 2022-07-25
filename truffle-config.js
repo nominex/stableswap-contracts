@@ -40,6 +40,9 @@ module.exports = {
     }
   },
 
+  contracts_directory: "contracts",
+  contracts_build_directory: "build",
+
   // Set default mocha options here, use special reporters etc.
   mocha: {
     useColors: true,

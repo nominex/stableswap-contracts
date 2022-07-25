@@ -15,29 +15,32 @@ import "./libraries/MathUtils.sol";
 contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
     using MathUtils for uint256;
 
-    uint224 constant Q112 = 2**112;
-
     bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
 
     event Mint(address indexed sender, uint256 amount0, uint256 amount1, address indexed recipient, uint256 liquidity);
     event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed recipient, uint256 liquidity);
     event Sync(uint256 reserve0, uint256 reserve1);
 
+    event RampA(uint256 oldA, uint256 newA, uint256 initialTime, uint256 futureTime);
+    event StopRampA(uint256 A, uint256 t);
+
     uint256 internal constant MINIMUM_LIQUIDITY = 10**3;
-    uint8 internal constant PRECISION = 112;
 
     /// @dev Constant value used as max loop limit.
     uint256 private constant MAX_LOOP_LIMIT = 256;
-    uint256 internal constant MAX_FEE = 10000;
-    // @dev 100%.
+    uint256 internal constant MAX_FEE = 10000; // @dev 100%.
 
-    uint256 public factory;
-    uint256 public immutable swapFee;
+    uint256 internal constant MAX_A = 10 ** 6;
+    uint256 internal constant MAX_A_CHANGE = 10;
+    uint256 internal constant MIN_RAMP_TIME = 86400;
+
 
     address public immutable token0;
     address public immutable token1;
-    uint256 public immutable A;
-    uint256 internal immutable N_A; // @dev 2 * A.
+
+    address public factory;
+    uint256 public swapFee;
+
     uint256 internal constant A_PRECISION = 100;
 
     /// @dev Multipliers for each pooled token's precision to get to POOL_PRECISION_DECIMALS.
@@ -52,7 +55,11 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
     uint128 internal reserve1;
     uint256 internal dLast;
 
-    bytes32 public constant override poolIdentifier = "Trident:HybridPool";
+    uint256 initialA;
+    uint256 futureA;
+    uint256 initialATime;
+    uint256 futureATime;
+
 
     uint private unlocked = 1;
     modifier lock() {
@@ -76,18 +83,86 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
         token1 = _token1;
         swapFee = _swapFee;
 
-        A = a;
-        N_A = 2 * a;
+        initialA = a;
+        futureA = a;
+        initialATime = block.timestamp;
+        futureATime = block.timestamp;
+
         token0PrecisionMultiplier = uint256(10)**(18 - IERC20(_token0).decimals());
         token1PrecisionMultiplier = uint256(10)**(18 - IERC20(_token1).decimals());
     }
 
-    function setDevFee(uint _devFee) external {
+    function setDevFee(uint _devFee) external override {
         require(_devFee != 0, "NomiswapPair: dev fee 0");
         require(msg.sender == factory, 'NomiswapPair: FORBIDDEN');
         require(_devFee <= MAX_FEE, 'NomiswapPair: FORBIDDEN_FEE');
         devFee = _devFee;
     }
+
+    function setSwapFee(uint _swapFee) external override {
+        require(_swapFee != 0, "NomiswapPair: dev fee 0");
+        require(msg.sender == factory, 'NomiswapPair: FORBIDDEN');
+        require(_swapFee <= MAX_FEE, 'NomiswapPair: FORBIDDEN_FEE');
+        swapFee = _swapFee;
+    }
+
+    function getA() public view returns (uint256) {
+        uint256 t1  = futureATime;
+        uint256 A1  = futureA;
+
+        if (block.timestamp < t1) {
+            uint256 A0 = initialA;
+            uint256 t0 = initialATime;
+            // Expressions in uint256 cannot have negative numbers, thus "if"
+            if (A1 > A0) {
+                return A0 + (A1 - A0) * (block.timestamp - t0) / (t1 - t0);
+            } else {
+                return A0 - (A0 - A1) * (block.timestamp - t0) / (t1 - t0);
+            }
+        } else {
+            // when t1 == 0 or block.timestamp >= t1
+            return A1;
+        }
+    }
+
+    function rampA(uint256 _futureA, uint256 _futureTime) external {
+
+        require(msg.sender == factory, 'NomiswapPair: FORBIDDEN');
+        require(block.timestamp >= initialATime + MIN_RAMP_TIME, 'NomiswapPair: INVALID_TIME');
+        require(_futureTime >= block.timestamp + MIN_RAMP_TIME, 'NomiswapPair: INVALID_FUTURE_TIME');
+
+        uint256 _initialA = getA();
+        uint256 _futureAP = _futureA * A_PRECISION;
+
+        require(_futureA > 0 && _futureA < MAX_A);
+
+        if (_futureAP < _initialA) {
+            require(_futureAP * MAX_A_CHANGE >= _initialA);
+        } else {
+            require(_futureAP <= _initialA * MAX_A_CHANGE);
+        }
+
+        initialA = _initialA;
+        futureA = _futureAP;
+        initialATime = block.timestamp;
+        futureATime = _futureTime;
+
+        emit RampA(_initialA, _futureAP, block.timestamp, _futureTime);
+    }
+
+    function stopRampA() external {
+
+        require(msg.sender == factory, 'NomiswapPair: FORBIDDEN');
+
+        uint256 currentA = getA();
+        initialA = currentA;
+        futureA = currentA;
+        initialATime = block.timestamp;
+        futureATime = block.timestamp;
+
+        emit StopRampA(currentA, block.timestamp);
+    }
+
 
     /// @dev Mints LP tokens - should be called via the router after transferring tokens.
     /// The router must ensure that sufficient LP tokens are minted by using the return value.
@@ -99,8 +174,8 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
         uint256 amount0 = balance0 - _reserve0;
         uint256 amount1 = balance1 - _reserve1;
         (uint256 fee0, uint256 fee1) = _nonOptimalMintFee(amount0, amount1, _reserve0, _reserve1);
-        _reserve0 += uint112(fee0);
-        _reserve1 += uint112(fee1);
+        _reserve0 += fee0;
+        _reserve1 += fee1;
 
         (uint256 _totalSupply, uint256 oldLiq) = _mintFee(_reserve0, _reserve1);
 
@@ -338,6 +413,7 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
     function _computeLiquidityFromAdjustedBalances(uint256 xp0, uint256 xp1) internal view returns (uint256 computed) {
         uint256 s = xp0 + xp1;
 
+        uint256 N_A = getA() * 2;
         if (s == 0) {
             computed = 0;
         }
@@ -362,6 +438,7 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
     /// @param x The new total amount of FROM token.
     /// @return y The amount of TO token that should remain in the pool.
     function _getY(uint256 x, uint256 D) internal view returns (uint256 y) {
+        uint256 N_A = getA() * 2;
         uint256 c = (D * D) / (x * 2);
         c = (c * D) / ((N_A * 2) / A_PRECISION);
         uint256 b = x + ((D * A_PRECISION) / N_A);

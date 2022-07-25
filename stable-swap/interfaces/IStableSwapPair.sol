@@ -27,9 +27,6 @@ interface IStableSwapPair is IStableSwapERC20 {
     /// @return amountOut The amount of output tokens that were sent to the user.
     function burnSingle(address tokenOut, address recipient) external returns (uint256 amountOut);
 
-    /// @return A unique identifier for the pool type.
-    function poolIdentifier() external pure returns (bytes32);
-
     /// @return An array of tokens supported by the pool.
     function getAssets() external view returns (address[] memory);
 
@@ -37,6 +34,9 @@ interface IStableSwapPair is IStableSwapERC20 {
     /// @dev The pool does not need to include a trade simulator directly in itself - it can use a library.
     /// @return finalAmountOut The amount of output tokens that will be sent to the user if the trade is executed.
     function getAmountOut(address tokenIn, uint256 amountIn) external view returns (uint256 finalAmountOut);
+
+    function setDevFee(uint _devFee) external;
+    function setSwapFee(uint _swapFee) external;
 
     /// @dev This event must be emitted on all swaps.
     event Swap(address indexed recipient, address indexed tokenIn, address indexed tokenOut, uint256 amountIn, uint256 amountOut);
