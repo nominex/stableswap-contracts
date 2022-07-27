@@ -30,6 +30,7 @@ interface IStableSwapPair is IStableSwapERC20 {
     /// @return An array of tokens supported by the pool.
     function getAssets() external view returns (address[] memory);
 
+    function getAmountIn(address tokenIn, uint256 amountOut) external view returns (uint256 finalAmountIn);
     /// @notice Simulates a trade and returns the expected output.
     /// @dev The pool does not need to include a trade simulator directly in itself - it can use a library.
     /// @return finalAmountOut The amount of output tokens that will be sent to the user if the trade is executed.

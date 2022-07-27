@@ -49,11 +49,10 @@ interface IStableSwapPair {
     /// @return amountOut The amount of output tokens that were sent to the user.
     function burnSingle(address tokenOut, address recipient) external returns (uint256 amountOut);
 
-    /// @return A unique identifier for the pool type.
-    function poolIdentifier() external pure returns (bytes32);
-
     /// @return An array of tokens supported by the pool.
     function getAssets() external view returns (address[] memory);
+
+    function getAmountIn(address tokenIn, uint256 amountOut) view returns (uint256 finalAmountIn);
 
     /// @notice Simulates a trade and returns the expected output.
     /// @dev The pool does not need to include a trade simulator directly in itself - it can use a library.

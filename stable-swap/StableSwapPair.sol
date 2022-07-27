@@ -499,6 +499,33 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
         assets[1] = token1;
     }
 
+    function getAmountIn(address tokenIn, uint256 amountOut) public view override returns (uint256 finalAmountIn) {
+        (uint256 _reserve0, uint256 _reserve1) = _getReserves();
+
+
+        unchecked {
+            uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
+            uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
+
+            uint256 d = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+
+            if (tokenIn == token0) {
+                uint256 x = adjustedReserve1 - amountOut;
+                uint256 y = _getY(x, d);
+                uint256 dy = y + 1 - adjustedReserve0;
+                dy /= token0PrecisionMultiplier;
+                finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
+            } else {
+                require(tokenIn == token1, "INVALID_INPUT_TOKEN");
+                uint256 x = adjustedReserve0 - amountOut;
+                uint256 y = _getY(x, d);
+                uint256 dy = y + 1 - adjustedReserve1;
+                dy /= token1PrecisionMultiplier;
+                finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
+            }
+        }
+    }
+
     function getAmountOut(address tokenIn, uint256 amountIn) public view override returns (uint256 finalAmountOut) {
         (uint256 _reserve0, uint256 _reserve1) = _getReserves();
 
