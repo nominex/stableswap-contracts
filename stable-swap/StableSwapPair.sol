@@ -17,10 +17,6 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
 
     bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
 
-    event Mint(address indexed sender, uint256 amount0, uint256 amount1, address indexed recipient, uint256 liquidity);
-    event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed recipient, uint256 liquidity);
-    event Sync(uint256 reserve0, uint256 reserve1);
-
     event RampA(uint256 oldA, uint256 newA, uint256 initialTime, uint256 futureTime);
     event StopRampA(uint256 A, uint256 t);
 
@@ -35,10 +31,10 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
     uint256 internal constant MIN_RAMP_TIME = 86400;
 
 
-    address public immutable token0;
-    address public immutable token1;
+    address public override factory;
+    address public override immutable token0;
+    address public override immutable token1;
 
-    address public factory;
     uint256 public swapFee;
 
     uint256 internal constant A_PRECISION = 100;
@@ -166,7 +162,7 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
 
     /// @dev Mints LP tokens - should be called via the router after transferring tokens.
     /// The router must ensure that sufficient LP tokens are minted by using the return value.
-    function mint(address recipient) public override lock returns (uint256 liquidity) {
+    function mint(address to) public override lock returns (uint256 liquidity) {
         (uint256 _reserve0, uint256 _reserve1) = _getReserves();
         (uint256 balance0, uint256 balance1) = _balance();
 
@@ -187,16 +183,15 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
             liquidity = ((newLiq - oldLiq) * _totalSupply) / oldLiq;
         }
         require(liquidity != 0, "INSUFFICIENT_LIQUIDITY_MINTED");
-        _mint(recipient, liquidity);
+        _mint(to, liquidity);
         _updateReserves();
 
         dLast = newLiq;
-        uint256 liquidityForEvent = liquidity;
-        emit Mint(msg.sender, amount0, amount1, recipient, liquidityForEvent);
+        emit Mint(msg.sender, amount0, amount1);
     }
 
     /// @dev Burns LP tokens sent to this contract. The router must ensure that the user gets sufficient output tokens.
-    function burn(address recipient) public override lock returns (IStableSwapPair.TokenAmount[] memory withdrawnAmounts) {
+    function burn(address to) public override lock returns (IStableSwapPair.TokenAmount[] memory withdrawnAmounts) {
 
         (uint256 balance0, uint256 balance1) = _balance();
         uint256 liquidity = balanceOf[address(this)];
@@ -207,8 +202,8 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
         uint256 amount1 = (liquidity * balance1) / _totalSupply;
 
         _burn(address(this), liquidity);
-        _transfer(token0, amount0, recipient);
-        _transfer(token1, amount1, recipient);
+        _transfer(token0, amount0, to);
+        _transfer(token1, amount1, to);
 
         _updateReserves();
 
@@ -218,7 +213,7 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
 
         dLast = _computeLiquidity(balance0 - amount0, balance1 - amount1);
 
-        emit Burn(msg.sender, amount0, amount1, recipient, liquidity);
+        emit Burn(msg.sender, amount0, amount1, to);
     }
 
     /// @dev Burns LP tokens sent to this contract and swaps one of the output tokens for another
@@ -252,15 +247,51 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
             amount1 = 0;
         }
         _updateReserves();
-        emit Burn(msg.sender, amount0, amount1, recipient, liquidity);
+        emit Burn(msg.sender, amount0, amount1, recipient);
+    }
+
+    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external override lock {
+        require(amount0Out > 0 || amount1Out > 0, 'Nomiswap: INSUFFICIENT_OUTPUT_AMOUNT');
+        (uint256 _reserve0, uint256 _reserve1) = _getReserves();
+        require(amount0Out < _reserve0 && amount1Out < _reserve1, 'Nomiswap: INSUFFICIENT_LIQUIDITY');
+
+        uint amount0In;
+        uint amount1In;
+        { // scope for _token{0,1}, avoids stack too deep errors
+        require(to != token0 && to != token1, 'Nomiswap: INVALID_TO');
+        if (amount0Out > 0) _transfer(token0, amount0Out, to); // optimistically transfer tokens
+        if (amount1Out > 0) _transfer(token1, amount1Out, to); // optimistically transfer tokens
+
+        if (data.length > 0) INomiswapCallee(to).nomiswapCall(msg.sender, amount0Out, amount1Out, data);
+
+        uint256 balance0 = IERC20(token0).balanceOf(address(this));
+        uint256 balance1 = IERC20(token1).balanceOf(address(this));
+
+        amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
+        amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
+        require(amount0In > 0 || amount1In > 0, 'Nomiswap: INSUFFICIENT_INPUT_AMOUNT');
+        uint _swapFee = swapFee;
+        uint balance0Adjusted = (balance0 * MAX_FEE - amount0In * _swapFee) * token0PrecisionMultiplier / MAX_FEE;
+        uint balance1Adjusted = (balance1 * MAX_FEE - amount1In * _swapFee) * token1PrecisionMultiplier / MAX_FEE;
+        uint256 dBalace = _computeLiquidityFromAdjustedBalances(balance0Adjusted, balance1Adjusted);
+
+        uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
+        uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
+        uint256 dReserves = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+
+        require(dBalace >= dReserves, 'Nomiswap: D');
+        }
+
+        _updateReserves();
+        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
     /// @dev Swaps one token for another. The router must prefund this contract and ensure there isn't too much slippage.
     function swap(address tokenIn, address recipient) public override lock returns (uint256 amountOut) {
         (uint256 _reserve0, uint256 _reserve1, uint256 balance0, uint256 balance1) = _getReservesAndBalances();
+
         uint256 amountIn;
         address tokenOut;
-
         if (tokenIn == token0) {
             tokenOut = token1;
             unchecked {
@@ -277,7 +308,12 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
         }
         _transfer(tokenOut, amountOut, recipient);
         _updateReserves();
-        emit Swap(recipient, tokenIn, tokenOut, amountIn, amountOut);
+        if (tokenIn == token0) {
+            emit Swap(msg.sender, amountIn, 0, 0, amountOut, recipient);
+        } else {
+            emit Swap(msg.sender, 0, amountIn, amountOut, 0, recipient);
+        }
+
     }
 
     /// @dev Swaps one token for another with payload. The router must support swap callbacks and ensure there isn't too much slippage.
@@ -286,22 +322,31 @@ contract StableSwapPair is IStableSwapPair, StableSwapERC20 {
         (uint256 _reserve0, uint256 _reserve1) = _getReserves();
         address tokenOut;
 
+        uint amount0In;
+        uint amount1In;
+        uint amount0Out;
+        uint amount1Out;
         if (tokenIn == token0) {
             tokenOut = token1;
+            amount0In = amountIn;
             amountOut = _getAmountOut(amountIn, _reserve0, _reserve1, true);
             _processSwap(token1, recipient, amountOut, context);
             uint256 balance0 = IERC20(token0).balanceOf(address(this));
             require(balance0 - _reserve0 >= amountIn, "INSUFFICIENT_AMOUNT_IN");
+            amount1Out = amountOut;
         } else {
             require(tokenIn == token1, "INVALID_INPUT_TOKEN");
             tokenOut = token0;
+            amount1In = amountIn;
             amountOut = _getAmountOut(amountIn, _reserve0, _reserve1, false);
             _processSwap(token0, recipient, amountOut, context);
             uint256 balance1 = IERC20(token1).balanceOf(address(this));
             require(balance1 - _reserve1 >= amountIn, "INSUFFICIENT_AMOUNT_IN");
+            amount0Out = amountOut;
         }
         _updateReserves();
-        emit Swap(recipient, tokenIn, tokenOut, amountIn, amountOut);
+
+        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, recipient);
     }
 
     /// @dev Updates `barFee` for Trident protocol.
