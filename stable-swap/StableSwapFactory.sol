@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import './interfaces/INomiswapFactory.sol';
 import './StableSwapPair.sol';
 
-contract NomiswapFactory is INomiswapFactory {
+contract NomiswapFactory is INomiswapFactory, Ownable {
 
     address public feeTo;
     address public feeToSetter;
@@ -13,7 +13,7 @@ contract NomiswapFactory is INomiswapFactory {
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
 
-    constructor(address _feeToSetter) {
+    constructor(address _feeToSetter) Ownable(msg.sender) {
         feeToSetter = _feeToSetter;
     }
 
@@ -21,7 +21,7 @@ contract NomiswapFactory is INomiswapFactory {
         return allPairs.length;
     }
 
-    function createPair(address tokenA, address tokenB) external returns (address pair) {
+    function createPair(address tokenA, address tokenB) external onlyOwner returns (address pair) {
         require(tokenA != tokenB, 'Nomiswap: IDENTICAL_ADDRESSES');
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'Nomiswap: ZERO_ADDRESS');
@@ -51,12 +51,12 @@ contract NomiswapFactory is INomiswapFactory {
     function setDevFee(address _pair, uint8 _devFee) external {
         require(msg.sender == feeToSetter, 'Nomiswap: FORBIDDEN');
         require(_devFee > 0, 'Nomiswap: FORBIDDEN_FEE');
-        IStableSwapPair(_pair).setDevFee(_devFee);
+        INomiswapStablePair(_pair).setDevFee(_devFee);
     }
 
     function setSwapFee(address _pair, uint32 _swapFee) external {
         require(msg.sender == feeToSetter, 'Nomiswap: FORBIDDEN');
-        IStableSwapPair(_pair).setSwapFee(_swapFee);
+        INomiswapStablePair(_pair).setSwapFee(_swapFee);
     }
 
     function rampA(address _pair, uint256 _futureA, uint256 _futureTime) external {

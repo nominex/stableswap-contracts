@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.0;
 
-import "./interfaces/IStableSwapERC20.sol";
+import "./interfaces/INomiswapERC20.sol";
 
-contract StableSwapERC20 is IStableSwapERC20 {
+contract StableSwapERC20 is INomiswapERC20 {
 
     uint256 constant MAX_UINT = type(uint256).max; // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
