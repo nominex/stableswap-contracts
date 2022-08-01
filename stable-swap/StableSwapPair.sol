@@ -303,4 +303,70 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         emit StopRampA(currentA, block.timestamp);
     }
 
+
+    function getAmountIn(address tokenIn, uint256 amountOut) external view override returns (uint256 finalAmountIn) {
+        (uint256 _reserve0, uint256 _reserve1, ) = getReserves();
+
+        unchecked {
+            uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
+            uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
+
+            uint256 d = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+
+            if (tokenIn == token0) {
+                uint256 x = adjustedReserve1 - amountOut * token1PrecisionMultiplier;
+                uint256 y = _getY(x, d);
+                uint256 dy = (y + 1 - adjustedReserve0) / token0PrecisionMultiplier;
+                finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
+            } else {
+                require(tokenIn == token1, "INVALID_INPUT_TOKEN");
+                uint256 x = adjustedReserve0 - amountOut * token0PrecisionMultiplier;
+                uint256 y = _getY(x, d);
+                uint256 dy = (y + 1 - adjustedReserve1) / token1PrecisionMultiplier;
+                finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
+            }
+        }
+    }
+
+    function getAmountOut(address tokenIn, uint256 amountIn) external view override returns (uint256 finalAmountOut) {
+        (uint256 _reserve0, uint256 _reserve1, ) = getReserves();
+
+
+        unchecked {
+            uint256 feeDeductedAmountIn = amountIn - (amountIn * swapFee) / MAX_FEE;
+            uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
+            uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
+
+            uint256 d = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+
+            if (tokenIn == token0) {
+                uint256 x = adjustedReserve0 + feeDeductedAmountIn * token0PrecisionMultiplier;
+                uint256 y = _getY(x, d);
+                finalAmountOut = (adjustedReserve1 - y - 1) / token1PrecisionMultiplier;
+            } else {
+                require(tokenIn == token1, "INVALID_INPUT_TOKEN");
+                uint256 x = adjustedReserve1 + feeDeductedAmountIn * token1PrecisionMultiplier;
+                uint256 y = _getY(x, d);
+                finalAmountOut = (adjustedReserve0 - y - 1) / token0PrecisionMultiplier;
+            }
+        }
+    }
+
+    function _getY(uint256 x, uint256 D) internal view returns (uint256 y) {
+        uint256 N_A = getA() * 2;
+        uint256 c = (D * D) / (x * 2);
+        c = (c * D) / ((N_A * 2) / A_PRECISION);
+        uint256 b = x + ((D * A_PRECISION) / N_A);
+        uint256 yPrev;
+        y = D;
+        // @dev Iterative approximation.
+        for (uint256 i = 0; i < MAX_LOOP_LIMIT; i++) {
+            yPrev = y;
+            y = (y * y + c) / (y * 2 + b - D);
+            if (y.within1(yPrev)) {
+                break;
+            }
+        }
+    }
+
 }

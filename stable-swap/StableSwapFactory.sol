@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import './interfaces/INomiswapFactory.sol';
 import './StableSwapPair.sol';
 
-contract NomiswapFactory is INomiswapFactory, Ownable {
+contract StableSwapFactory is INomiswapFactory, Ownable {
 
     address public feeTo;
     address public feeToSetter;

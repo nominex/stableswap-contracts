@@ -19,4 +19,7 @@ interface INomiswapStablePair is INomiswapPair {
     function rampA(uint256 _futureA, uint256 _futureTime) external;
     function stopRampA() external;
 
+    function getAmountIn(address tokenIn, uint256 amountOut) external view returns (uint256);
+    function getAmountOut(address tokenIn, uint256 amountIn) external view returns (uint256);
+
 }
