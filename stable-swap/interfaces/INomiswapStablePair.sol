@@ -11,6 +11,8 @@ interface INomiswapStablePair is INomiswapPair {
 
 //    function burnSingle(address tokenOut, address recipient) external returns (uint256 amountOut);
 
+    function getA() external view returns (uint256);
+
     function setSwapFee(uint32) external;
     function setDevFee(uint) external;
 

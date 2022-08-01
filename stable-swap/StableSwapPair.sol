@@ -230,7 +230,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         }
     }
 
-    function getA() public view returns (uint256) {
+    function getA() override public view returns (uint256) {
         uint256 t1  = futureATime;
         uint256 A1  = futureA;
 
