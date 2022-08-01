@@ -10,7 +10,6 @@ interface INomiswapConstantProductPair is INomiswapPair {
     function price0CumulativeLast() external view returns (uint);
     function price1CumulativeLast() external view returns (uint);
     function kLast() external view returns (uint);
-    function swapFee() external view returns (uint32);
     function devFee() external view returns (uint);
 
     function initialize(address, address) external;

@@ -7,7 +7,6 @@ pragma experimental ABIEncoderV2;
 
 interface INomiswapStablePair is INomiswapPair {
 
-    function swapFee() external view returns (uint32);
     function devFee() external view returns (uint);
 
 //    function burnSingle(address tokenOut, address recipient) external returns (uint256 amountOut);
