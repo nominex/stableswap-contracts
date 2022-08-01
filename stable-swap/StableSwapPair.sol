@@ -47,11 +47,11 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     uint256 internal constant MIN_RAMP_TIME = 86400;
 
 
-    uint256 public immutable token0PrecisionMultiplier;
-    uint256 public immutable token1PrecisionMultiplier;
+    uint256 public token0PrecisionMultiplier;
+    uint256 public token1PrecisionMultiplier;
 
-    uint256 initialA;
-    uint256 futureA;
+    uint256 initialA = 85;
+    uint256 futureA = 85;
     uint256 initialATime;
     uint256 futureATime;
 
@@ -66,7 +66,11 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         require(success && (data.length == 0 || abi.decode(data, (bool))), 'Nomiswap: TRANSFER_FAILED');
     }
 
-    constructor(address _token0, address _token1) Ownable(msg.sender) {
+    constructor() Ownable(msg.sender) {
+        futureATime = block.timestamp;
+    }
+
+    function initialize(address _token0, address _token1) external onlyOwner {
         token0 = _token0;
         token1 = _token1;
         token0PrecisionMultiplier = uint256(10)**(18 - IERC20(_token0).decimals());
@@ -172,7 +176,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     // this low-level function should be called from a contract which performs important safety checks
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
         require(amount0Out > 0 || amount1Out > 0, 'Nomiswap: INSUFFICIENT_OUTPUT_AMOUNT');
-        (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
+        (uint _reserve0, uint _reserve1,) = getReserves(); // gas savings
         require(amount0Out < _reserve0 && amount1Out < _reserve1, 'Nomiswap: INSUFFICIENT_LIQUIDITY');
 
         uint balance0;
@@ -196,13 +200,13 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
 
         uint balance0Adjusted = (balance0 * MAX_FEE - amount0In * _swapFee) * token0PrecisionMultiplier / MAX_FEE;
         uint balance1Adjusted = (balance1 * MAX_FEE - amount1In * _swapFee) * token1PrecisionMultiplier / MAX_FEE;
-        uint256 dBalace = _computeLiquidityFromAdjustedBalances(balance0Adjusted, balance1Adjusted);
+        uint256 dBalance = _computeLiquidityFromAdjustedBalances(balance0Adjusted, balance1Adjusted);
 
-        uint256 adjustedReserve0 = uint256(_reserve0) * token0PrecisionMultiplier;
-        uint256 adjustedReserve1 = uint256(_reserve1) * token1PrecisionMultiplier;
+        uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
+        uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
         uint256 dReserves = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
 
-        require(dBalace >= dReserves, 'Nomiswap: D');
+        require(dBalance >= dReserves, 'Nomiswap: D');
         }
 
         _update(balance0, balance1);
@@ -254,7 +258,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
 
         uint256 N_A = getA() * 2;
         if (s == 0) {
-            computed = 0;
+            return 0;
         }
         uint256 prevD;
         uint256 D = s;
