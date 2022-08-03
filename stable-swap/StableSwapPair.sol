@@ -16,9 +16,6 @@ import "./util/Ownable.sol";
 contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownable {
     using MathUtils for uint256;
 
-    event RampA(uint256 oldA, uint256 newA, uint256 initialTime, uint256 futureTime);
-    event StopRampA(uint256 A, uint256 t);
-
     uint224 constant Q112 = 2**112;
 
     using UQ112x112 for uint224;
@@ -55,17 +52,6 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     uint256 initialATime;
     uint256 futureATime;
 
-    function getReserves() public view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast) {
-        _reserve0 = reserve0;
-        _reserve1 = reserve1;
-        _blockTimestampLast = blockTimestampLast;
-    }
-
-    function _safeTransfer(address token, address to, uint value) private {
-        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(SELECTOR, to, value));
-        require(success && (data.length == 0 || abi.decode(data, (bool))), 'Nomiswap: TRANSFER_FAILED');
-    }
-
     constructor() Ownable(msg.sender) {
         futureATime = block.timestamp;
     }
@@ -77,53 +63,20 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         token1PrecisionMultiplier = uint256(10)**(18 - IERC20(_token1).decimals());
     }
 
-    function factory() override public view returns (address) {
-        return owner;
-    }
-
     function setSwapFee(uint32 _swapFee) override external onlyOwner {
         require(_swapFee > 0, "NomiswapPair: lower then 0");
         require(_swapFee <= MAX_FEE, 'NomiswapPair: FORBIDDEN_FEE');
         swapFee = _swapFee;
     }
 
-    function setDevFee(uint _devFee) external onlyOwner {
+    function setDevFee(uint _devFee) override external onlyOwner {
         require(_devFee != 0, "NomiswapPair: dev fee 0");
         require(_devFee <= 500 * Q112, 'NomiswapPair: FORBIDDEN_FEE');
         devFee = _devFee;
     }
 
-    function _update(uint balance0, uint balance1) private {
-        require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, 'Nomiswap: OVERFLOW');
-        uint32 blockTimestamp = uint32(block.timestamp % 2**32);
-        reserve0 = uint112(balance0);
-        reserve1 = uint112(balance1);
-        blockTimestampLast = blockTimestamp;
-        emit Sync(reserve0, reserve1);
-    }
-
-    // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
-    function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
-        address feeTo = INomiswapFactory(factory()).feeTo();
-        feeOn = feeTo != address(0);
-        uint _dLast = dLast; // gas savings
-        if (feeOn) {
-            if (_dLast != 0) {
-                uint d = _computeLiquidity(_reserve0, _reserve1);
-                if (d > dLast) {
-                    uint numerator = totalSupply * (d - dLast);
-                    uint denominator = (d * devFee/Q112) + dLast;
-                    uint liquidity = numerator / denominator;
-                    if (liquidity > 0) _mint(feeTo, liquidity);
-                }
-            }
-        } else if (_dLast != 0) {
-            dLast = 0;
-        }
-    }
-
     // this low-level function should be called from a contract which performs important safety checks
-    function mint(address to) external lock returns (uint liquidity) {
+    function mint(address to) override external lock returns (uint liquidity) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         uint balance0 = IERC20(token0).balanceOf(address(this));
         uint balance1 = IERC20(token1).balanceOf(address(this));
@@ -135,7 +88,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         uint amount1 = balance1 - _reserve1;
         if (_totalSupply == 0) {
             liquidity = _computeLiquidity(amount0, amount1) - MINIMUM_LIQUIDITY;
-           _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
+            _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
             uint256 dReserve = _computeLiquidity(reserve0, reserve1);
             liquidity = (dBalance - dReserve) * _totalSupply/dReserve;
@@ -149,7 +102,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     // this low-level function should be called from a contract which performs important safety checks
-    function burn(address to) external lock returns (uint amount0, uint amount1) {
+    function burn(address to) override external lock returns (uint amount0, uint amount1) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         address _token0 = token0;                                // gas savings
         address _token1 = token1;                                // gas savings
@@ -174,7 +127,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     // this low-level function should be called from a contract which performs important safety checks
-    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
+    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) override external lock {
         require(amount0Out > 0 || amount1Out > 0, 'Nomiswap: INSUFFICIENT_OUTPUT_AMOUNT');
         (uint _reserve0, uint _reserve1,) = getReserves(); // gas savings
         require(amount0Out < _reserve0 && amount1Out < _reserve1, 'Nomiswap: INSUFFICIENT_LIQUIDITY');
@@ -182,31 +135,31 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         uint balance0;
         uint balance1;
         { // scope for _token{0,1}, avoids stack too deep errors
-        address _token0 = token0;
-        address _token1 = token1;
-        require(to != _token0 && to != _token1, 'Nomiswap: INVALID_TO');
-        if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
-        if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
-        if (data.length > 0) INomiswapCallee(to).nomiswapCall(msg.sender, amount0Out, amount1Out, data);
-        balance0 = IERC20(_token0).balanceOf(address(this));
-        balance1 = IERC20(_token1).balanceOf(address(this));
+            address _token0 = token0;
+            address _token1 = token1;
+            require(to != _token0 && to != _token1, 'Nomiswap: INVALID_TO');
+            if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
+            if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
+            if (data.length > 0) INomiswapCallee(to).nomiswapCall(msg.sender, amount0Out, amount1Out, data);
+            balance0 = IERC20(_token0).balanceOf(address(this));
+            balance1 = IERC20(_token1).balanceOf(address(this));
         }
         uint amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
         uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, 'Nomiswap: INSUFFICIENT_INPUT_AMOUNT');
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
 
-        uint _swapFee = swapFee;
+            uint _swapFee = swapFee;
 
-        uint balance0Adjusted = (balance0 * MAX_FEE - amount0In * _swapFee) * token0PrecisionMultiplier / MAX_FEE;
-        uint balance1Adjusted = (balance1 * MAX_FEE - amount1In * _swapFee) * token1PrecisionMultiplier / MAX_FEE;
-        uint256 dBalance = _computeLiquidityFromAdjustedBalances(balance0Adjusted, balance1Adjusted);
+            uint balance0Adjusted = (balance0 * MAX_FEE - amount0In * _swapFee) * token0PrecisionMultiplier / MAX_FEE;
+            uint balance1Adjusted = (balance1 * MAX_FEE - amount1In * _swapFee) * token1PrecisionMultiplier / MAX_FEE;
+            uint256 dBalance = _computeLiquidityFromAdjustedBalances(balance0Adjusted, balance1Adjusted);
 
-        uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
-        uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
-        uint256 dReserves = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+            uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
+            uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
+            uint256 dReserves = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
 
-        require(dBalance >= dReserves, 'Nomiswap: D');
+            require(dBalance >= dReserves, 'Nomiswap: D');
         }
 
         _update(balance0, balance1);
@@ -214,7 +167,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     // force balances to match reserves
-    function skim(address to) external lock {
+    function skim(address to) override external lock {
         address _token0 = token0; // gas savings
         address _token1 = token1; // gas savings
         _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)) - reserve0);
@@ -222,55 +175,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     // force reserves to match balances
-    function sync() external lock {
+    function sync() override external lock {
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)));
-    }
-
-    function _computeLiquidity(uint256 _reserve0, uint256 _reserve1) internal view returns (uint256 liquidity) {
-        unchecked {
-            uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
-            uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
-            liquidity = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
-        }
-    }
-
-    function getA() override public view returns (uint256) {
-        uint256 t1  = futureATime;
-        uint256 A1  = futureA;
-
-        if (block.timestamp < t1) {
-            uint256 A0 = initialA;
-            uint256 t0 = initialATime;
-            // Expressions in uint256 cannot have negative numbers, thus "if"
-            if (A1 > A0) {
-                return A0 + (A1 - A0) * (block.timestamp - t0) / (t1 - t0);
-            } else {
-                return A0 - (A0 - A1) * (block.timestamp - t0) / (t1 - t0);
-            }
-        } else {
-            // when t1 == 0 or block.timestamp >= t1
-            return A1;
-        }
-    }
-
-    function _computeLiquidityFromAdjustedBalances(uint256 xp0, uint256 xp1) internal view returns (uint256 computed) {
-        uint256 s = xp0 + xp1;
-
-        uint256 N_A = getA() * 2;
-        if (s == 0) {
-            return 0;
-        }
-        uint256 prevD;
-        uint256 D = s;
-        for (uint256 i = 0; i < MAX_LOOP_LIMIT; i++) {
-            uint256 dP = (((D * D) / xp0) * D) / xp1 / 4;
-            prevD = D;
-            D = (((N_A * s) / A_PRECISION + 2 * dP) * D) / ((N_A / A_PRECISION - 1) * D + 3 * dP);
-            if (D.within1(prevD)) {
-                break;
-            }
-        }
-        computed = D;
     }
 
     function rampA(uint256 _futureA, uint256 _futureTime) override external lock onlyOwner {
@@ -306,7 +212,6 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
 
         emit StopRampA(currentA, block.timestamp);
     }
-
 
     function getAmountIn(address tokenIn, uint256 amountOut) external view override returns (uint256 finalAmountIn) {
         (uint256 _reserve0, uint256 _reserve1, ) = getReserves();
@@ -356,7 +261,98 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         }
     }
 
-    function _getY(uint256 x, uint256 D) internal view returns (uint256 y) {
+    function getReserves() override public view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast) {
+        _reserve0 = reserve0;
+        _reserve1 = reserve1;
+        _blockTimestampLast = blockTimestampLast;
+    }
+
+    function factory() override public view returns (address) {
+        return owner;
+    }
+
+    function getA() override public view returns (uint256) {
+        uint256 t1  = futureATime;
+        uint256 A1  = futureA;
+
+        if (block.timestamp < t1) {
+            uint256 A0 = initialA;
+            uint256 t0 = initialATime;
+            // Expressions in uint256 cannot have negative numbers, thus "if"
+            if (A1 > A0) {
+                return A0 + (A1 - A0) * (block.timestamp - t0) / (t1 - t0);
+            } else {
+                return A0 - (A0 - A1) * (block.timestamp - t0) / (t1 - t0);
+            }
+        } else {
+            // when t1 == 0 or block.timestamp >= t1
+            return A1;
+        }
+    }
+
+    function _computeLiquidity(uint256 _reserve0, uint256 _reserve1) private view returns (uint256 liquidity) {
+        unchecked {
+            uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
+            uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
+            liquidity = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+        }
+    }
+
+    function _safeTransfer(address token, address to, uint value) private {
+        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(SELECTOR, to, value));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), 'Nomiswap: TRANSFER_FAILED');
+    }
+
+    function _update(uint balance0, uint balance1) private {
+        require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, 'Nomiswap: OVERFLOW');
+        uint32 blockTimestamp = uint32(block.timestamp % 2**32);
+        reserve0 = uint112(balance0);
+        reserve1 = uint112(balance1);
+        blockTimestampLast = blockTimestamp;
+        emit Sync(reserve0, reserve1);
+    }
+
+    // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
+    function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
+        address feeTo = INomiswapFactory(factory()).feeTo();
+        feeOn = feeTo != address(0);
+        uint _dLast = dLast; // gas savings
+        if (feeOn) {
+            if (_dLast != 0) {
+                uint d = _computeLiquidity(_reserve0, _reserve1);
+                if (d > dLast) {
+                    uint numerator = totalSupply * (d - dLast);
+                    uint denominator = (d * devFee/Q112) + dLast;
+                    uint liquidity = numerator / denominator;
+                    if (liquidity > 0) _mint(feeTo, liquidity);
+                }
+            }
+        } else if (_dLast != 0) {
+            dLast = 0;
+        }
+    }
+
+    function _computeLiquidityFromAdjustedBalances(uint256 xp0, uint256 xp1) private view returns (uint256 computed) {
+        uint256 s = xp0 + xp1;
+
+        uint256 N_A = getA() * 2;
+        if (s == 0) {
+            return 0;
+        }
+        uint256 prevD;
+        uint256 D = s;
+        for (uint256 i = 0; i < MAX_LOOP_LIMIT; i++) {
+            uint256 dP = (((D * D) / xp0) * D) / xp1 / 4;
+            prevD = D;
+            D = (((N_A * s) / A_PRECISION + 2 * dP) * D) / ((N_A / A_PRECISION - 1) * D + 3 * dP);
+            if (D.within1(prevD)) {
+                break;
+            }
+        }
+        computed = D;
+    }
+
+    function _getY(uint256 x, uint256 D) private view returns (uint256 y) {
         uint256 N_A = getA() * 2;
         uint256 c = (D * D) / (x * 2);
         c = (c * D) / ((N_A * 2) / A_PRECISION);
