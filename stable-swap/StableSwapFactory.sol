@@ -49,7 +49,7 @@ contract StableSwapFactory is INomiswapFactory, Ownable {
         feeToSetter = _feeToSetter;
     }
 
-    function setDevFee(address _pair, uint8 _devFee) external {
+    function setDevFee(address _pair, uint256 _devFee) external {
         require(msg.sender == feeToSetter, 'Nomiswap: FORBIDDEN');
         require(_devFee > 0, 'Nomiswap: FORBIDDEN_FEE');
         INomiswapStablePair(_pair).setDevFee(_devFee);
