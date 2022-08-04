@@ -4,6 +4,7 @@ const WalletSubprovider = require('@trufflesuite/web3-provider-engine/subprovide
 const Web3Subprovider = require("@trufflesuite/web3-provider-engine/subproviders/provider.js");
 const web3 = require("web3");
 const nconf = require("nconf");
+require('ts-node/register');
 
 nconf.argv().env().file({ file: './.config.json' });
 function provider(url) {
@@ -44,7 +45,12 @@ module.exports = {
   contracts_build_directory: "build/stable-swap",
 
   // Set default mocha options here, use special reporters etc.
+  test_directory: "test-ss",
   mocha: {
+    reporter: "spec",
+    reporterOption: "test-ss/**/*.spec.js",
+    spec: "test-ss/**/*.spec.js",
+    test: "test-ss/**/*.spec.js",
     useColors: true,
     timeout: 100000,
   },

@@ -4,6 +4,7 @@ const WalletSubprovider = require('@trufflesuite/web3-provider-engine/subprovide
 const Web3Subprovider = require("@trufflesuite/web3-provider-engine/subproviders/provider.js");
 const web3 = require("web3");
 const nconf = require("nconf");
+require('ts-node/register');
 
 nconf.argv().env().file({ file: './.config.json' });
 function provider(url) {
@@ -22,8 +23,8 @@ module.exports = {
   networks: {
     development: {
       host: "127.0.0.1",
-      port: 7545,
-      network_id: "97",
+      port: 9545,
+      network_id: "5777",
       gas: 6721975,
     },
     testnet: {
