@@ -4,9 +4,11 @@ import { deployContract } from 'ethereum-waffle'
 
 import { expandTo18Decimals } from './utilities'
 
-import ERC20 from '../../build/ERC20.json'
-import NomiswapFactory from '../../build/NomiswapFactory.json'
-import NomiswapPair from '../../build/NomiswapPair.json'
+declare var artifacts: any;
+const ERC20 = artifacts.require('ERC20');
+// import ERC20 from '../../build/contracts/ERC20.json'
+import NomiswapFactory from '../../build/contracts/StableSwapFactory.json'
+import NomiswapPair from '../../build/contracts/StableSwapPair.json'
 
 interface FactoryFixture {
   factory: Contract

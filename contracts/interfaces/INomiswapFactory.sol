@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.5.0;
 
 interface INomiswapFactory {
@@ -5,7 +6,7 @@ interface INomiswapFactory {
 
     function feeTo() external view returns (address);
     function feeToSetter() external view returns (address);
-    function INIT_CODE_HASH() external pure returns (bytes32);
+    function INIT_CODE_HASH() external view returns (bytes32);
 
     function getPair(address tokenA, address tokenB) external view returns (address pair);
     function allPairs(uint) external view returns (address pair);
@@ -15,6 +16,5 @@ interface INomiswapFactory {
 
     function setFeeTo(address) external;
     function setFeeToSetter(address) external;
-    function setDevFee(address pair, uint8 _devFee) external;
     function setSwapFee(address pair, uint32 swapFee) external;
 }

@@ -2,12 +2,13 @@ import chai, { expect } from 'chai'
 import { Contract } from 'ethers'
 import { MaxUint256 } from 'ethers/constants'
 import { bigNumberify, hexlify, keccak256, defaultAbiCoder, toUtf8Bytes } from 'ethers/utils'
-import { solidity, MockProvider, deployContract } from 'ethereum-waffle'
+import {solidity, MockProvider, deployContract} from 'ethereum-waffle'
 import { ecsign } from 'ethereumjs-util'
 
 import { expandTo18Decimals, getApprovalDigest } from './shared/utilities'
 
-import ERC20 from '../build/ERC20.json'
+declare var artifacts: any;
+const ERC20 = artifacts.require('ERC20');
 
 chai.use(solidity)
 
@@ -31,7 +32,8 @@ describe('NomiswapERC20', () => {
     const name = await token.name()
     expect(name).to.eq('Nomiswap LPs')
     expect(await token.symbol()).to.eq('NMX-LP')
-    expect(await token.decimals()).to.eq(18)
+      let val = await token.decimals();
+      expect(val).to.eq(18)
     expect(await token.totalSupply()).to.eq(TOTAL_SUPPLY)
     expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY)
     expect(await token.DOMAIN_SEPARATOR()).to.eq(

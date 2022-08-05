@@ -41,11 +41,12 @@ module.exports = {
     }
   },
 
-  contracts_directory: "contracts",
-  contracts_build_directory: "build",
-
   // Set default mocha options here, use special reporters etc.
   mocha: {
+    reporter: "spec",
+    reporterOption: "test-ss/**/*.spec.js",
+    spec: "test-ss/**/*.spec.js",
+    test: "test-ss/**/*.spec.js",
     useColors: true,
     timeout: 100000,
   },
@@ -53,7 +54,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "=0.5.16", // A version or constraint - Ex. "^0.5.0"
+      version: "0.8.15", // A version or constraint - Ex. "^0.5.0"
       settings: {
         optimizer: {
           enabled: true,
@@ -70,4 +71,4 @@ module.exports = {
   api_keys: {
     etherscan: nconf.get("ETHERSCAN_API_KEY")
   }
-}
+};

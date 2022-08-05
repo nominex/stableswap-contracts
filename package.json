@@ -36,7 +36,7 @@
     "nconv": "^1.0.0",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
-    "solc": "0.5.16",
+    "solc": "0.8.15",
     "truffle": "^5.5.22",
     "truffle-flattener": "^1.6.0",
     "truffle-plugin-verify": "^0.4.0",

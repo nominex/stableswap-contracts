@@ -7,7 +7,7 @@ import { solidity, MockProvider, createFixtureLoader } from 'ethereum-waffle'
 import { getCreate2Address } from './shared/utilities'
 import { factoryFixture } from './shared/fixtures'
 
-import NomiswapPair from '../build/NomiswapPair.json'
+import NomiswapPair from '../build/contracts/StableSwapPair.json'
 
 chai.use(solidity)
 
