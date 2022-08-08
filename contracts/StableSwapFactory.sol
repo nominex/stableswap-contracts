@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import './interfaces/INomiswapFactory.sol';
-import './StableSwapPair.sol';
+import './FactoryLib.sol';
 
 contract StableSwapFactory is INomiswapFactory, Ownable {
 
@@ -26,7 +26,7 @@ contract StableSwapFactory is INomiswapFactory, Ownable {
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'Nomiswap: ZERO_ADDRESS');
         require(getPair[token0][token1] == address(0), 'Nomiswap: PAIR_EXISTS'); // single check is sufficient
-        bytes memory bytecode = type(StableSwapPair).creationCode;
+        bytes memory bytecode = FactoryLib.pairCreationCode();
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)

@@ -57,7 +57,7 @@ module.exports = {
       version: "0.8.15", // A version or constraint - Ex. "^0.5.0"
       settings: {
         optimizer: {
-          enabled: true,
+          enabled: false,
           runs: 999999,
         },
         evmVersion: 'istanbul',

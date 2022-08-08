@@ -30,7 +30,7 @@
     "@types/chai": "^4.3.1",
     "@types/mocha": "^5.2.7",
     "chai": "^4.3.6",
-    "ethereum-waffle": "^2.4.1",
+    "ethereum-waffle": "^4.0.4",
     "ethereumjs-util": "^6.2.0",
     "mocha": "^6.2.2",
     "nconv": "^1.0.0",

@@ -1,5 +1,5 @@
-import { Contract } from 'ethers'
-import { Web3Provider } from 'ethers/providers'
+import { Contract } from '@ethersproject/contracts'
+import { Web3Provider } from '@ethersproject/providers'
 import {
   BigNumber,
   bigNumberify,
@@ -18,7 +18,7 @@ export function expandTo18Decimals(n: number): BigNumber {
   return bigNumberify(n).mul(bigNumberify(10).pow(18))
 }
 
-function getDomainSeparator(name: string, tokenAddress: string) {
+function getDomainSeparator(name: string, tokenAddress: string, chainId: number) {
   return keccak256(
     defaultAbiCoder.encode(
       ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
@@ -26,7 +26,7 @@ function getDomainSeparator(name: string, tokenAddress: string) {
         keccak256(toUtf8Bytes('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')),
         keccak256(toUtf8Bytes(name)),
         keccak256(toUtf8Bytes('1')),
-        1,
+        chainId,
         tokenAddress
       ]
     )
@@ -59,8 +59,9 @@ export async function getApprovalDigest(
   nonce: BigNumber,
   deadline: BigNumber
 ): Promise<string> {
-  const name = await token.name()
-  const DOMAIN_SEPARATOR = getDomainSeparator(name, token.address)
+  const network = await token.provider.getNetwork();
+  const name = await token.name();
+  const DOMAIN_SEPARATOR = getDomainSeparator(name, token.address, network.chainId);
   return keccak256(
     solidityPack(
       ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
@@ -81,7 +82,7 @@ export async function getApprovalDigest(
 
 export async function mineBlock(provider: Web3Provider, timestamp: number): Promise<void> {
   await new Promise(async (resolve, reject) => {
-    ;(provider._web3Provider.sendAsync as any)(
+    ;(provider.provider.sendAsync as any)(
       { jsonrpc: '2.0', method: 'evm_mine', params: [timestamp] },
       (error: any, result: any): void => {
         if (error) {

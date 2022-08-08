@@ -47,8 +47,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     uint256 public token0PrecisionMultiplier;
     uint256 public token1PrecisionMultiplier;
 
-    uint256 initialA = 85;
-    uint256 futureA = 85;
+    uint256 initialA = 85 * A_PRECISION;
+    uint256 futureA = 85 * A_PRECISION;
     uint256 initialATime;
     uint256 futureATime;
 
@@ -83,14 +83,15 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
 
         bool feeOn = _mintFee(_reserve0, _reserve1);
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
-        uint dBalance = _computeLiquidity(balance0, balance1);
+        uint A = getA();
+        uint dBalance = _computeLiquidity(balance0, balance1, A);
         uint amount0 = balance0 - _reserve0;
         uint amount1 = balance1 - _reserve1;
         if (_totalSupply == 0) {
-            liquidity = _computeLiquidity(amount0, amount1) - MINIMUM_LIQUIDITY;
+            liquidity = _computeLiquidity(amount0, amount1, A) - MINIMUM_LIQUIDITY;
             _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
-            uint256 dReserve = _computeLiquidity(reserve0, reserve1);
+            uint256 dReserve = _computeLiquidity(reserve0, reserve1, A);
             liquidity = (dBalance - dReserve) * _totalSupply/dReserve;
         }
         require(liquidity > 0, 'Nomiswap: INSUFFICIENT_LIQUIDITY_MINTED');
@@ -122,7 +123,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         balance1 = IERC20(_token1).balanceOf(address(this));
 
         _update(balance0, balance1);
-        if (feeOn) dLast = _computeLiquidity(reserve0, reserve1); // reserve0 and reserve1 are up-to-date
+        if (feeOn) dLast = _computeLiquidity(reserve0, reserve1, getA()); // reserve0 and reserve1 are up-to-date
         emit Burn(msg.sender, amount0, amount1, to);
     }
 
@@ -149,15 +150,16 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         require(amount0In > 0 || amount1In > 0, 'Nomiswap: INSUFFICIENT_INPUT_AMOUNT');
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
 
+            uint256 A = getA();
             uint _swapFee = swapFee;
 
             uint balance0Adjusted = (balance0 * MAX_FEE - amount0In * _swapFee) * token0PrecisionMultiplier / MAX_FEE;
             uint balance1Adjusted = (balance1 * MAX_FEE - amount1In * _swapFee) * token1PrecisionMultiplier / MAX_FEE;
-            uint256 dBalance = _computeLiquidityFromAdjustedBalances(balance0Adjusted, balance1Adjusted);
+            uint256 dBalance = _computeLiquidityFromAdjustedBalances(balance0Adjusted, balance1Adjusted, A);
 
             uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
             uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
-            uint256 dReserves = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+            uint256 dReserves = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1, A);
 
             require(dBalance >= dReserves, 'Nomiswap: D');
         }
@@ -219,18 +221,18 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         unchecked {
             uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
             uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
-
-            uint256 d = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+            uint256 A = getA();
+            uint256 d = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1, A);
 
             if (tokenIn == token0) {
                 uint256 x = adjustedReserve1 - amountOut * token1PrecisionMultiplier;
-                uint256 y = _getY(x, d);
+                uint256 y = _getY(x, d, A);
                 uint256 dy = (y + 1 - adjustedReserve0) / token0PrecisionMultiplier;
                 finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
                 uint256 x = adjustedReserve0 - amountOut * token0PrecisionMultiplier;
-                uint256 y = _getY(x, d);
+                uint256 y = _getY(x, d, A);
                 uint256 dy = (y + 1 - adjustedReserve1) / token1PrecisionMultiplier;
                 finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
             }
@@ -245,17 +247,17 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
             uint256 feeDeductedAmountIn = amountIn - (amountIn * swapFee) / MAX_FEE;
             uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
             uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
-
-            uint256 d = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+            uint256 A = getA();
+            uint256 d = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1, A);
 
             if (tokenIn == token0) {
                 uint256 x = adjustedReserve0 + feeDeductedAmountIn * token0PrecisionMultiplier;
-                uint256 y = _getY(x, d);
+                uint256 y = _getY(x, d, A);
                 finalAmountOut = (adjustedReserve1 - y - 1) / token1PrecisionMultiplier;
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
                 uint256 x = adjustedReserve1 + feeDeductedAmountIn * token1PrecisionMultiplier;
-                uint256 y = _getY(x, d);
+                uint256 y = _getY(x, d, A);
                 finalAmountOut = (adjustedReserve0 - y - 1) / token0PrecisionMultiplier;
             }
         }
@@ -290,11 +292,11 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         }
     }
 
-    function _computeLiquidity(uint256 _reserve0, uint256 _reserve1) private view returns (uint256 liquidity) {
+    function _computeLiquidity(uint256 _reserve0, uint256 _reserve1, uint256 A) private view returns (uint256 liquidity) {
         unchecked {
             uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
             uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
-            liquidity = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1);
+            liquidity = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1, A);
         }
     }
 
@@ -319,7 +321,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         uint _dLast = dLast; // gas savings
         if (feeOn) {
             if (_dLast != 0) {
-                uint d = _computeLiquidity(_reserve0, _reserve1);
+                uint d = _computeLiquidity(_reserve0, _reserve1, getA());
                 if (d > dLast) {
                     uint numerator = totalSupply * (d - dLast);
                     uint denominator = (d * devFee/Q112) + dLast;
@@ -332,10 +334,10 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         }
     }
 
-    function _computeLiquidityFromAdjustedBalances(uint256 xp0, uint256 xp1) private view returns (uint256 computed) {
+    function _computeLiquidityFromAdjustedBalances(uint256 xp0, uint256 xp1, uint256 A) private pure returns (uint256 computed) {
         uint256 s = xp0 + xp1;
 
-        uint256 N_A = getA() * 2;
+        uint256 N_A = A * 2;
         if (s == 0) {
             return 0;
         }
@@ -352,8 +354,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         computed = D;
     }
 
-    function _getY(uint256 x, uint256 D) private view returns (uint256 y) {
-        uint256 N_A = getA() * 2;
+    function _getY(uint256 x, uint256 D, uint256 A) private pure returns (uint256 y) {
+        uint256 N_A = A * 2;
         uint256 c = (D * D) / (x * 2);
         c = (c * D) / ((N_A * 2) / A_PRECISION);
         uint256 b = x + ((D * A_PRECISION) / N_A);
