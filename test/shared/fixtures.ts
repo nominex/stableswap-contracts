@@ -7,7 +7,6 @@ import { MockProvider } from 'ethereum-waffle'
 import { expandTo18Decimals } from './utilities'
 
 import ERC20 from '../../build/ERC20.json'
-import FactoryLib from '../../build/FactoryLib.json'
 import NomiswapFactory from '../../build/StableSwapFactory.json'
 import NomiswapPair from '../../build/StableSwapPair.json'
 
@@ -19,14 +18,7 @@ const overrides = {
   gasLimit: 9999999
 }
 
-let library: Contract;
-
 export async function factoryFixture([wallet]: Wallet[], _: MockProvider): Promise<FactoryFixture> {
-  if (!library) {
-    library = await deployContract(wallet, FactoryLib, []);
-    link(NomiswapFactory, 'contracts/FactoryLib.sol:FactoryLib', library.address);
-  }
-
   const factory = await deployContract(wallet, NomiswapFactory, [wallet.address]);
   return { factory }
 }
