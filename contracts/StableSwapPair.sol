@@ -64,7 +64,6 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     function setSwapFee(uint32 _swapFee) override external onlyOwner {
-        require(_swapFee > 0, "NomiswapPair: lower then 0");
         require(_swapFee <= MAX_FEE, 'NomiswapPair: FORBIDDEN_FEE');
         swapFee = _swapFee;
     }
