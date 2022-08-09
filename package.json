@@ -1,11 +1,10 @@
 {
-  "name": "@nominex/nomiswap-core",
-  "description": "🎛 Core contracts for the nomiswap protocol",
+  "name": "@nominex/stable-swap",
   "version": "0.2.0",
   "homepage": "https://nomiswap.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nominex/nomiswap-core.git"
+    "url": "bitbucket.org:bitchangers/stableswap-contracts.git"
   },
   "publishConfig": {
     "registry": "http://registry.npmjs.org"
