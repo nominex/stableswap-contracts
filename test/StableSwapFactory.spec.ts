@@ -88,7 +88,7 @@ describe('NomiswapFactory', () => {
   it('createPair:gas', async () => {
     const tx = await factory.createPair(...TEST_ADDRESSES);
     const receipt = await tx.wait();
-    expect(receipt.gasUsed).to.eq(3472445)
+    expect(receipt.gasUsed).to.eq(3492931)
   });
 
   it('setFeeTo', async () => {
