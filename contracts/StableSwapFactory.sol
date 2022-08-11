@@ -4,7 +4,7 @@ pragma solidity =0.8.15;
 import './StableSwapPair.sol';
 import './interfaces/INomiswapFactory.sol';
 
-contract StableSwapFactory is INomiswapFactory, Ownable {
+contract StableSwapFactory is INomiswapFactory {
 
     address public feeTo;
     address public feeToSetter;
@@ -13,7 +13,7 @@ contract StableSwapFactory is INomiswapFactory, Ownable {
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
 
-    constructor(address _feeToSetter) Ownable(msg.sender) {
+    constructor(address _feeToSetter) {
         feeToSetter = _feeToSetter;
     }
 
@@ -21,7 +21,8 @@ contract StableSwapFactory is INomiswapFactory, Ownable {
         return allPairs.length;
     }
 
-    function createPair(address tokenA, address tokenB) external onlyOwner returns (address pair) {
+    function createPair(address tokenA, address tokenB) external returns (address pair) {
+        require(msg.sender == feeToSetter, 'Nomiswap: FORBIDDEN');
         require(tokenA != tokenB, 'Nomiswap: IDENTICAL_ADDRESSES');
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'Nomiswap: ZERO_ADDRESS');

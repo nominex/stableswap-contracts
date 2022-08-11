@@ -55,6 +55,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@openzeppelin/contracts": "^4.7.3",
     "@types/sinon-chai": "^3.2.8",
     "nconf": "^0.11.4",
     "solhint": "^3.3.7",

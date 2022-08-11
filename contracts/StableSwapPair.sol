@@ -8,12 +8,12 @@ import "./interfaces/INomiswapCallee.sol";
 import "./interfaces/INomiswapFactory.sol";
 import "./StableSwapERC20.sol";
 import "./libraries/MathUtils.sol";
-import './libraries/UQ112x112.sol';
-import './libraries/Math.sol';
-import "./util/Lockable.sol";
-import "./util/Ownable.sol";
+import "./libraries/UQ112x112.sol";
+import "./libraries/Math.sol";
+import "./util/FactoryGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownable {
+contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard, FactoryGuard {
     using MathUtils for uint256;
 
     uint224 constant Q112 = 2**112;
@@ -52,30 +52,30 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     uint256 initialATime;
     uint256 futureATime;
 
-    constructor() Ownable(msg.sender) {
+    constructor() FactoryGuard(msg.sender) {
         futureATime = block.timestamp;
     }
 
-    function initialize(address _token0, address _token1) external onlyOwner {
+    function initialize(address _token0, address _token1) external onlyFactory {
         token0 = _token0;
         token1 = _token1;
         token0PrecisionMultiplier = uint256(10)**(18 - IERC20(_token0).decimals());
         token1PrecisionMultiplier = uint256(10)**(18 - IERC20(_token1).decimals());
     }
 
-    function setSwapFee(uint32 _swapFee) override external onlyOwner {
+    function setSwapFee(uint32 _swapFee) override external onlyFactory {
         require(_swapFee <= MAX_FEE, 'NomiswapPair: FORBIDDEN_FEE');
         swapFee = _swapFee;
     }
 
-    function setDevFee(uint _devFee) override external onlyOwner {
+    function setDevFee(uint _devFee) override external onlyFactory {
         require(_devFee != 0, "NomiswapPair: dev fee 0");
         require(_devFee <= 500 * Q112, 'NomiswapPair: FORBIDDEN_FEE');
         devFee = _devFee;
     }
 
     // this low-level function should be called from a contract which performs important safety checks
-    function mint(address to) override external lock returns (uint liquidity) {
+    function mint(address to) override external nonReentrant returns (uint liquidity) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         uint balance0 = IERC20(token0).balanceOf(address(this));
         uint balance1 = IERC20(token1).balanceOf(address(this));
@@ -102,7 +102,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     // this low-level function should be called from a contract which performs important safety checks
-    function burn(address to) override external lock returns (uint amount0, uint amount1) {
+    function burn(address to) override external nonReentrant returns (uint amount0, uint amount1) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         address _token0 = token0;                                // gas savings
         address _token1 = token1;                                // gas savings
@@ -127,7 +127,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     // this low-level function should be called from a contract which performs important safety checks
-    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) override external lock {
+    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) override external nonReentrant {
         require(amount0Out > 0 || amount1Out > 0, 'Nomiswap: INSUFFICIENT_OUTPUT_AMOUNT');
         (uint _reserve0, uint _reserve1,) = getReserves(); // gas savings
         require(amount0Out < _reserve0 && amount1Out < _reserve1, 'Nomiswap: INSUFFICIENT_LIQUIDITY');
@@ -168,7 +168,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     // force balances to match reserves
-    function skim(address to) override external lock {
+    function skim(address to) override external nonReentrant {
         address _token0 = token0; // gas savings
         address _token1 = token1; // gas savings
         _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)) - reserve0);
@@ -176,11 +176,11 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     // force reserves to match balances
-    function sync() override external lock {
+    function sync() override external nonReentrant {
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)));
     }
 
-    function rampA(uint256 _futureA, uint256 _futureTime) override external lock onlyOwner {
+    function rampA(uint256 _futureA, uint256 _futureTime) override external nonReentrant onlyFactory {
 
         require(block.timestamp >= initialATime + MIN_RAMP_TIME, 'NomiswapPair: INVALID_TIME');
         require(_futureTime >= block.timestamp + MIN_RAMP_TIME, 'NomiswapPair: INVALID_FUTURE_TIME');
@@ -204,7 +204,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
         emit RampA(_initialA, _futureAP, block.timestamp, _futureTime);
     }
 
-    function stopRampA() override external lock onlyOwner {
+    function stopRampA() override external nonReentrant onlyFactory {
         uint256 currentA = getA();
         initialA = currentA;
         futureA = currentA;
@@ -269,7 +269,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, Lockable, Ownab
     }
 
     function factory() override public view returns (address) {
-        return owner;
+        return _factory;
     }
 
     function getA() override public view returns (uint256) {
