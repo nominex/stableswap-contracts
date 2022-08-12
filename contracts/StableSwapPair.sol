@@ -69,7 +69,6 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
 
     function setDevFee(uint _devFee) override external onlyFactory {
         require(_devFee != 0, "NomiswapPair: dev fee 0");
-        require(_devFee <= 500 * Q112, 'NomiswapPair: FORBIDDEN_FEE');
         devFee = _devFee;
     }
 
