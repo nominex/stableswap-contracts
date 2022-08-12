@@ -313,7 +313,6 @@ describe('StableSwapPair with different decimals', () => {
 
     const reverseOut = await pair.getAmountOut(token1.address, forwardOut);
 
-    console.log(swapAmount.sub(reverseOut).toString());
     expect(swapAmount.sub(reverseOut).toNumber()).to.be.lessThan(10);
 
     await token1.transfer(pair.address, forwardOut);
