@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity =0.8.15;
 
-import "./interfaces/IERC20.sol";
-
 import "./interfaces/INomiswapStablePair.sol";
 import "./interfaces/INomiswapCallee.sol";
 import "./interfaces/INomiswapFactory.sol";
@@ -11,6 +9,7 @@ import "./libraries/MathUtils.sol";
 import "./libraries/UQ112x112.sol";
 import "./libraries/Math.sol";
 import "./util/FactoryGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard, FactoryGuard {
@@ -59,8 +58,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     function initialize(address _token0, address _token1) external onlyFactory {
         token0 = _token0;
         token1 = _token1;
-        token0PrecisionMultiplier = uint256(10)**(18 - IERC20(_token0).decimals());
-        token1PrecisionMultiplier = uint256(10)**(18 - IERC20(_token1).decimals());
+        token0PrecisionMultiplier = uint256(10)**(18 - IERC20Metadata(_token0).decimals());
+        token1PrecisionMultiplier = uint256(10)**(18 - IERC20Metadata(_token1).decimals());
     }
 
     function setSwapFee(uint32 _swapFee) override external onlyFactory {
