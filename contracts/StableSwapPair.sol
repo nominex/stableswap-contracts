@@ -329,7 +329,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     function _computeLiquidityFromAdjustedBalances(uint256 xp0, uint256 xp1, uint256 A) private pure returns (uint256 computed) {
         uint256 s = xp0 + xp1;
 
-        uint256 N_A = A * 2;
+        uint256 N_A = A * 4;
         if (s == 0) {
             return 0;
         }
@@ -347,7 +347,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     }
 
     function _getY(uint256 x, uint256 D, uint256 A) private pure returns (uint256 y) {
-        uint256 N_A = A * 2;
+        uint256 N_A = A * 4;
         uint256 c = (D * D) / (x * 2);
         c = (c * D) / ((N_A * 2) / A_PRECISION);
         uint256 b = x + ((D * A_PRECISION) / N_A);
