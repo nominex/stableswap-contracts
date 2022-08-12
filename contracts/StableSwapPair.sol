@@ -30,8 +30,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     uint32  private blockTimestampLast; // uses single storage slot, accessible via getReserves
 
     uint public dLast; // invariant
-    uint256 internal constant MAX_FEE = 1000; // @dev 100%.
-    uint32 public swapFee = 1; // uses 0.1% default
+    uint256 internal constant MAX_FEE = 10000; // @dev 100%.
+    uint32 public swapFee = 10; // uses 0.1% default
     uint public devFee = uint(Q112*(10-7))/uint(7); // 70% (1/0.7-1)
 
     uint256 internal constant A_PRECISION = 100;
