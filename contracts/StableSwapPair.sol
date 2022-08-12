@@ -43,8 +43,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     uint256 internal constant MIN_RAMP_TIME = 86400;
 
 
-    uint256 public token0PrecisionMultiplier;
-    uint256 public token1PrecisionMultiplier;
+    uint128 public token0PrecisionMultiplier; // uses single storage slot
+    uint128 public token1PrecisionMultiplier; // uses single storage slot
 
     uint256 initialA = 85 * A_PRECISION;
     uint256 futureA = 85 * A_PRECISION;
@@ -58,8 +58,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     function initialize(address _token0, address _token1) external onlyFactory {
         token0 = _token0;
         token1 = _token1;
-        token0PrecisionMultiplier = uint256(10)**(18 - IERC20Metadata(_token0).decimals());
-        token1PrecisionMultiplier = uint256(10)**(18 - IERC20Metadata(_token1).decimals());
+        token0PrecisionMultiplier = uint128(10)**(18 - IERC20Metadata(_token0).decimals());
+        token1PrecisionMultiplier = uint128(10)**(18 - IERC20Metadata(_token1).decimals());
     }
 
     function setSwapFee(uint32 _swapFee) override external onlyFactory {
