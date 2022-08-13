@@ -224,13 +224,13 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
             if (tokenIn == token0) {
                 uint256 x = adjustedReserve1 - amountOut * token1PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                uint256 dy = (y + 1 - adjustedReserve0) / token0PrecisionMultiplier;
+                uint256 dy = (y - adjustedReserve0) / token0PrecisionMultiplier + 2;
                 finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
                 uint256 x = adjustedReserve0 - amountOut * token0PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                uint256 dy = (y + 1 - adjustedReserve1) / token1PrecisionMultiplier;
+                uint256 dy = (y - adjustedReserve1) / token1PrecisionMultiplier + 2;
                 finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
             }
         }
@@ -250,12 +250,12 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
             if (tokenIn == token0) {
                 uint256 x = adjustedReserve0 + feeDeductedAmountIn * token0PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                finalAmountOut = (adjustedReserve1 - y - 1) / token1PrecisionMultiplier;
+                finalAmountOut = (adjustedReserve1 - y) / token1PrecisionMultiplier - 2;
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
                 uint256 x = adjustedReserve1 + feeDeductedAmountIn * token1PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                finalAmountOut = (adjustedReserve0 - y - 1) / token0PrecisionMultiplier;
+                finalAmountOut = (adjustedReserve0 - y) / token0PrecisionMultiplier - 2;
             }
         }
     }
