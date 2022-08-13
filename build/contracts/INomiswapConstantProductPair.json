@@ -714,7 +714,7 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.0;\n\nimport \"./INomiswapPair.sol\";\n\ninterface INomiswapConstantProductPair is INomiswapPair {\n\n    function price0CumulativeLast() external view returns (uint);\n    function price1CumulativeLast() external view returns (uint);\n    function kLast() external view returns (uint);\n    function devFee() external view returns (uint);\n\n    function initialize(address, address) external;\n    function setSwapFee(uint32) external;\n    function setDevFee(uint) external;\n\n}\n",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/interfaces/INomiswapConstantProductPair.sol",
+  "sourcePath": "/home/ivan/repo/dex-stable-swap/contracts/interfaces/INomiswapConstantProductPair.sol",
   "ast": {
     "absolutePath": "project:/contracts/interfaces/INomiswapConstantProductPair.sol",
     "exportedSymbols": {
@@ -1220,8 +1220,8 @@
     "version": "0.8.15+commit.e14f2714.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.9",
-  "updatedAt": "2022-08-12T11:43:07.960Z",
+  "schemaVersion": "3.4.8",
+  "updatedAt": "2022-08-13T06:36:43.602Z",
   "devdoc": {
     "kind": "dev",
     "methods": {

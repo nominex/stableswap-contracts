@@ -10,7 +10,7 @@
   "sourceMap": "124:522:16:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;124:522:16;;;;;;;;;;;;;;;;;",
   "deployedSourceMap": "124:522:16:-:0;;;;;;;;",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity =0.8.15;\n\n// a library for performing various math operations\n\nlibrary Math {\n    function min(uint x, uint y) internal pure returns (uint z) {\n        z = x < y ? x : y;\n    }\n\n    // babylonian method (https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method)\n    function sqrt(uint y) internal pure returns (uint z) {\n        if (y > 3) {\n            z = y;\n            uint x = y / 2 + 1;\n            while (x < z) {\n                z = x;\n                x = (y / x + x) / 2;\n            }\n        } else if (y != 0) {\n            z = 1;\n        }\n    }\n}\n",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/libraries/Math.sol",
+  "sourcePath": "/home/ivan/repo/dex-stable-swap/contracts/libraries/Math.sol",
   "ast": {
     "absolutePath": "project:/contracts/libraries/Math.sol",
     "exportedSymbols": {
@@ -949,8 +949,8 @@
     "version": "0.8.15+commit.e14f2714.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.9",
-  "updatedAt": "2022-08-12T11:43:07.964Z",
+  "schemaVersion": "3.4.8",
+  "updatedAt": "2022-08-13T06:36:43.605Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

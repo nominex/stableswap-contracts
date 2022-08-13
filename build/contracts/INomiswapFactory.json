@@ -205,7 +205,7 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity >=0.5.0;\n\ninterface INomiswapFactory {\n    event PairCreated(address indexed token0, address indexed token1, address pair, uint);\n\n    function feeTo() external view returns (address);\n    function feeToSetter() external view returns (address);\n    function INIT_CODE_HASH() external view returns (bytes32);\n\n    function getPair(address tokenA, address tokenB) external view returns (address pair);\n    function allPairs(uint) external view returns (address pair);\n    function allPairsLength() external view returns (uint);\n\n    function createPair(address tokenA, address tokenB) external returns (address pair);\n\n    function setFeeTo(address) external;\n    function setFeeToSetter(address) external;\n    function setSwapFee(address pair, uint32 swapFee) external;\n}\n",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/interfaces/INomiswapFactory.sol",
+  "sourcePath": "/home/ivan/repo/dex-stable-swap/contracts/interfaces/INomiswapFactory.sol",
   "ast": {
     "absolutePath": "project:/contracts/interfaces/INomiswapFactory.sol",
     "exportedSymbols": {
@@ -1114,8 +1114,8 @@
     "version": "0.8.15+commit.e14f2714.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.9",
-  "updatedAt": "2022-08-12T11:43:07.962Z",
+  "schemaVersion": "3.4.8",
+  "updatedAt": "2022-08-13T06:36:43.603Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

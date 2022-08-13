@@ -321,7 +321,7 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.0;\n\nimport \"@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol\";\n\ninterface INomiswapERC20 is IERC20Metadata {\n    function DOMAIN_SEPARATOR() external view returns (bytes32);\n    function PERMIT_TYPEHASH() external pure returns (bytes32);\n    function nonces(address owner) external view returns (uint);\n\n    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;\n}\n",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/interfaces/INomiswapERC20.sol",
+  "sourcePath": "/home/ivan/repo/dex-stable-swap/contracts/interfaces/INomiswapERC20.sol",
   "ast": {
     "absolutePath": "project:/contracts/interfaces/INomiswapERC20.sol",
     "exportedSymbols": {
@@ -818,8 +818,8 @@
     "version": "0.8.15+commit.e14f2714.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.9",
-  "updatedAt": "2022-08-12T11:43:07.961Z",
+  "schemaVersion": "3.4.8",
+  "updatedAt": "2022-08-13T06:36:43.602Z",
   "devdoc": {
     "kind": "dev",
     "methods": {

@@ -320,7 +320,7 @@
   "sourceMap": "71:248:21:-:0;;;252:64;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;-1:-1:-1;;;;;291:18:21;;;71:248;;14:290:22;84:6;137:2;125:9;116:7;112:23;108:32;105:52;;;153:1;150;143:12;105:52;179:16;;-1:-1:-1;;;;;224:31:22;;214:42;;204:70;;270:1;267;260:12;204:70;293:5;14:290;-1:-1:-1;;;14:290:22:o;:::-;71:248:21;;;;;;;;;;;",
   "deployedSourceMap": "71:248:21:-:0;;;;;",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity =0.8.15;\n\ncontract FactoryGuard {\n\n    address immutable internal _factory;\n    modifier onlyFactory() {\n        require(msg.sender == _factory, 'Nomiswap: FORBIDDEN');\n        _;\n    }\n\n    constructor(address factory) {\n        _factory = factory;\n    }\n\n}",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/util/FactoryGuard.sol",
+  "sourcePath": "/home/ivan/repo/dex-stable-swap/contracts/util/FactoryGuard.sol",
   "ast": {
     "absolutePath": "project:/contracts/util/FactoryGuard.sol",
     "exportedSymbols": {
@@ -651,8 +651,8 @@
     "version": "0.8.15+commit.e14f2714.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.9",
-  "updatedAt": "2022-08-12T11:43:07.972Z",
+  "schemaVersion": "3.4.8",
+  "updatedAt": "2022-08-13T06:36:43.611Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

@@ -793,7 +793,7 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.0;\n\nimport \"./INomiswapPair.sol\";\npragma experimental ABIEncoderV2;\n\ninterface INomiswapStablePair is INomiswapPair {\n\n    event RampA(uint256 oldA, uint256 newA, uint256 initialTime, uint256 futureTime);\n    event StopRampA(uint256 A, uint256 t);\n\n    function devFee() external view returns (uint);\n\n//    function burnSingle(address tokenOut, address recipient) external returns (uint256 amountOut);\n\n    function getA() external view returns (uint256);\n\n    function setSwapFee(uint32) external;\n    function setDevFee(uint) external;\n\n    function rampA(uint256 _futureA, uint256 _futureTime) external;\n    function stopRampA() external;\n\n    function getAmountIn(address tokenIn, uint256 amountOut) external view returns (uint256);\n    function getAmountOut(address tokenIn, uint256 amountIn) external view returns (uint256);\n\n}\n",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/interfaces/INomiswapStablePair.sol",
+  "sourcePath": "/home/ivan/repo/dex-stable-swap/contracts/interfaces/INomiswapStablePair.sol",
   "ast": {
     "absolutePath": "project:/contracts/interfaces/INomiswapStablePair.sol",
     "exportedSymbols": {
@@ -1645,8 +1645,8 @@
     "version": "0.8.15+commit.e14f2714.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.9",
-  "updatedAt": "2022-08-12T11:43:07.963Z",
+  "schemaVersion": "3.4.8",
+  "updatedAt": "2022-08-13T06:36:43.604Z",
   "devdoc": {
     "kind": "dev",
     "methods": {

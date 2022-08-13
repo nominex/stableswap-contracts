@@ -413,7 +413,7 @@
   "sourceMap": "71:332:6:-:0;;;237:49;;;;;;;;;-1:-1:-1;261:5:6;:18;;-1:-1:-1;;;;;;261:18:6;269:10;261:18;;;71:332;;;;;;",
   "deployedSourceMap": "71:332:6:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;123:36;;;;;;;;;160:25:22;;;148:2;133:18;123:36:6;;;;;;;;97:20;;;;;;;;;;;;372:42:22;360:55;;;342:74;;330:2;315:18;97:20:6;196:226:22;292:109:6;;;;;;:::i;:::-;;:::i;:::-;;;216:5;;;;202:10;:19;198:26;;358:24:::1;:36:::0;;;198:26;292:109;:::o;427:180:22:-;486:6;539:2;527:9;518:7;514:23;510:32;507:52;;;555:1;552;545:12;507:52;-1:-1:-1;578:23:22;;427:180;-1:-1:-1;427:180:22:o",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity =0.8.15;\n\ncontract Migrations {\n    address public owner;\n    uint public last_completed_migration;\n\n    modifier restricted() {\n        if (msg.sender == owner) _;\n    }\n\n    constructor() {\n        owner = msg.sender;\n    }\n\n    function setCompleted(uint completed) public restricted {\n        last_completed_migration = completed;\n    }\n}\n",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/Migration.sol",
+  "sourcePath": "/home/ivan/repo/dex-stable-swap/contracts/Migration.sol",
   "ast": {
     "absolutePath": "project:/contracts/Migration.sol",
     "exportedSymbols": {
@@ -818,8 +818,8 @@
     "version": "0.8.15+commit.e14f2714.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.4.9",
-  "updatedAt": "2022-08-12T11:43:07.940Z",
+  "schemaVersion": "3.4.8",
+  "updatedAt": "2022-08-13T06:36:43.575Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},
