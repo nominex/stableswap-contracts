@@ -58,8 +58,12 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     function initialize(address _token0, address _token1) external onlyFactory {
         token0 = _token0;
         token1 = _token1;
-        token0PrecisionMultiplier = uint128(10)**(18 - IERC20Metadata(_token0).decimals());
-        token1PrecisionMultiplier = uint128(10)**(18 - IERC20Metadata(_token1).decimals());
+        uint8 decimals0 = IERC20Metadata(_token0).decimals();
+        require(decimals0 <= 18, 'NomiswapPair: unsupported token');
+        token0PrecisionMultiplier = uint128(10)**(18 - decimals0);
+        uint8 decimals1 = IERC20Metadata(_token1).decimals();
+        require(decimals1 <= 18, 'NomiswapPair: unsupported token');
+        token1PrecisionMultiplier = uint128(10)**(18 - decimals1);
     }
 
     function setSwapFee(uint32 _swapFee) override external onlyFactory {
