@@ -13,12 +13,12 @@ interface INomiswapStablePair is INomiswapPair {
 
 //    function burnSingle(address tokenOut, address recipient) external returns (uint256 amountOut);
 
-    function getA() external view returns (uint256);
+    function getA() external view returns (uint32);
 
     function setSwapFee(uint32) external;
     function setDevFee(uint) external;
 
-    function rampA(uint256 _futureA, uint256 _futureTime) external;
+    function rampA(uint32 _futureA, uint40 _futureTime) external;
     function stopRampA() external;
 
     function getAmountIn(address tokenIn, uint256 amountOut) external view returns (uint256);

@@ -34,7 +34,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     uint32 public swapFee = 10; // uses 0.1% default
     uint public devFee = uint(Q112*(10-7))/uint(7); // 70% (1/0.7-1)
 
-    uint256 internal constant A_PRECISION = 100;
+    uint32 internal constant A_PRECISION = 100;
 
     uint256 private constant MAX_LOOP_LIMIT = 256;
 
@@ -46,13 +46,13 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     uint128 public token0PrecisionMultiplier; // uses single storage slot
     uint128 public token1PrecisionMultiplier; // uses single storage slot
 
-    uint256 initialA = 85 * A_PRECISION;
-    uint256 futureA = 85 * A_PRECISION;
-    uint256 initialATime;
-    uint256 futureATime;
+    uint32 initialA = 85 * A_PRECISION; // uses single storage slot
+    uint32 futureA = 85 * A_PRECISION; // uses single storage slot
+    uint40 initialATime; // uses single storage slot
+    uint40 futureATime; // uses single storage slot
 
     constructor() FactoryGuard(msg.sender) {
-        futureATime = block.timestamp;
+        futureATime = uint40(block.timestamp);
     }
 
     function initialize(address _token0, address _token1) external onlyFactory {
@@ -182,13 +182,13 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)));
     }
 
-    function rampA(uint256 _futureA, uint256 _futureTime) override external nonReentrant onlyFactory {
+    function rampA(uint32 _futureA, uint40 _futureTime) override external nonReentrant onlyFactory {
 
         require(block.timestamp >= initialATime + MIN_RAMP_TIME, 'NomiswapPair: INVALID_TIME');
         require(_futureTime >= block.timestamp + MIN_RAMP_TIME, 'NomiswapPair: INVALID_FUTURE_TIME');
 
-        uint256 _initialA = getA();
-        uint256 _futureAP = _futureA * A_PRECISION;
+        uint32 _initialA = getA();
+        uint32 _futureAP = _futureA * A_PRECISION;
 
         require(_futureA > 0 && _futureA < MAX_A);
 
@@ -200,18 +200,18 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
 
         initialA = _initialA;
         futureA = _futureAP;
-        initialATime = block.timestamp;
+        initialATime = uint40(block.timestamp);
         futureATime = _futureTime;
 
         emit RampA(_initialA, _futureAP, block.timestamp, _futureTime);
     }
 
     function stopRampA() override external nonReentrant onlyFactory {
-        uint256 currentA = getA();
+        uint32 currentA = getA();
         initialA = currentA;
         futureA = currentA;
-        initialATime = block.timestamp;
-        futureATime = block.timestamp;
+        initialATime = uint40(block.timestamp);
+        futureATime = uint40(block.timestamp);
 
         emit StopRampA(currentA, block.timestamp);
     }
@@ -274,18 +274,18 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         return _factory;
     }
 
-    function getA() override public view returns (uint256) {
-        uint256 t1  = futureATime;
-        uint256 A1  = futureA;
+    function getA() override public view returns (uint32) {
+        uint40 t1  = futureATime;
+        uint32 A1  = futureA;
 
         if (block.timestamp < t1) {
-            uint256 A0 = initialA;
-            uint256 t0 = initialATime;
-            // Expressions in uint256 cannot have negative numbers, thus "if"
+            uint32 A0 = initialA;
+            uint40 t0 = initialATime;
+            // Expressions in uint32 cannot have negative numbers, thus "if"
             if (A1 > A0) {
-                return A0 + (A1 - A0) * (block.timestamp - t0) / (t1 - t0);
+                return uint32(A0 + (block.timestamp - t0) * (A1 - A0) / (t1 - t0));
             } else {
-                return A0 - (A0 - A1) * (block.timestamp - t0) / (t1 - t0);
+                return uint32(A0 - (block.timestamp - t0) * (A0 - A1) / (t1 - t0));
             }
         } else {
             // when t1 == 0 or block.timestamp >= t1

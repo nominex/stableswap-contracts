@@ -61,7 +61,7 @@ contract StableSwapFactory is INomiswapFactory {
         INomiswapStablePair(_pair).setSwapFee(_swapFee);
     }
 
-    function rampA(address _pair, uint256 _futureA, uint256 _futureTime) external {
+    function rampA(address _pair, uint32 _futureA, uint40 _futureTime) external {
         require(msg.sender == feeToSetter, 'Nomiswap: FORBIDDEN');
         StableSwapPair(_pair).rampA(_futureA, _futureTime);
     }
