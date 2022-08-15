@@ -7,7 +7,6 @@ import "./interfaces/INomiswapFactory.sol";
 import "./StableSwapERC20.sol";
 import "./libraries/MathUtils.sol";
 import "./libraries/UQ112x112.sol";
-import "./libraries/Math.sol";
 import "./util/FactoryGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
