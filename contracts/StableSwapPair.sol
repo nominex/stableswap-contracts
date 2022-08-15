@@ -153,13 +153,14 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
 
             uint256 A = getA();
             uint _swapFee = swapFee;
-
-            uint balance0Adjusted = (balance0 * MAX_FEE - amount0In * _swapFee) * token0PrecisionMultiplier / MAX_FEE;
-            uint balance1Adjusted = (balance1 * MAX_FEE - amount1In * _swapFee) * token1PrecisionMultiplier / MAX_FEE;
+            uint _token0PrecisionMultiplier = token0PrecisionMultiplier;
+            uint _token1PrecisionMultiplier = token1PrecisionMultiplier;
+            uint balance0Adjusted = (balance0 * MAX_FEE - amount0In * _swapFee) * _token0PrecisionMultiplier / MAX_FEE;
+            uint balance1Adjusted = (balance1 * MAX_FEE - amount1In * _swapFee) * _token1PrecisionMultiplier / MAX_FEE;
             uint256 dBalance = _computeLiquidityFromAdjustedBalances(balance0Adjusted, balance1Adjusted, A);
 
-            uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
-            uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
+            uint256 adjustedReserve0 = _reserve0 * _token0PrecisionMultiplier;
+            uint256 adjustedReserve1 = _reserve1 * _token1PrecisionMultiplier;
             uint256 dReserves = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1, A);
 
             require(dBalance >= dReserves, 'Nomiswap: D');
@@ -183,7 +184,6 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     }
 
     function rampA(uint32 _futureA, uint40 _futureTime) override external nonReentrant onlyFactory {
-
         require(block.timestamp >= initialATime + MIN_RAMP_TIME, 'NomiswapPair: INVALID_TIME');
         require(_futureTime >= block.timestamp + MIN_RAMP_TIME, 'NomiswapPair: INVALID_FUTURE_TIME');
 
@@ -220,21 +220,23 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         (uint256 _reserve0, uint256 _reserve1, ) = getReserves();
 
         unchecked {
-            uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
-            uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
+            uint256 _token0PrecisionMultiplier = token0PrecisionMultiplier;
+            uint256 _token1PrecisionMultiplier = token1PrecisionMultiplier;
+            uint256 adjustedReserve0 = _reserve0 * _token0PrecisionMultiplier;
+            uint256 adjustedReserve1 = _reserve1 * _token1PrecisionMultiplier;
             uint256 A = getA();
             uint256 d = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1, A);
 
             if (tokenIn == token0) {
-                uint256 x = adjustedReserve1 - amountOut * token1PrecisionMultiplier;
+                uint256 x = adjustedReserve1 - amountOut * _token1PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                uint256 dy = (y - adjustedReserve0) / token0PrecisionMultiplier + 2;
+                uint256 dy = (y - adjustedReserve0) / _token0PrecisionMultiplier + 2;
                 finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
-                uint256 x = adjustedReserve0 - amountOut * token0PrecisionMultiplier;
+                uint256 x = adjustedReserve0 - amountOut * _token0PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                uint256 dy = (y - adjustedReserve1) / token1PrecisionMultiplier + 2;
+                uint256 dy = (y - adjustedReserve1) / _token1PrecisionMultiplier + 2;
                 finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
             }
         }
@@ -243,23 +245,24 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     function getAmountOut(address tokenIn, uint256 amountIn) external view override returns (uint256 finalAmountOut) {
         (uint256 _reserve0, uint256 _reserve1, ) = getReserves();
 
-
         unchecked {
+            uint256 _token0PrecisionMultiplier = token0PrecisionMultiplier;
+            uint256 _token1PrecisionMultiplier = token1PrecisionMultiplier;
             uint256 feeDeductedAmountIn = amountIn - (amountIn * swapFee) / MAX_FEE;
-            uint256 adjustedReserve0 = _reserve0 * token0PrecisionMultiplier;
-            uint256 adjustedReserve1 = _reserve1 * token1PrecisionMultiplier;
+            uint256 adjustedReserve0 = _reserve0 * _token0PrecisionMultiplier;
+            uint256 adjustedReserve1 = _reserve1 * _token1PrecisionMultiplier;
             uint256 A = getA();
             uint256 d = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1, A);
 
             if (tokenIn == token0) {
-                uint256 x = adjustedReserve0 + feeDeductedAmountIn * token0PrecisionMultiplier;
+                uint256 x = adjustedReserve0 + feeDeductedAmountIn * _token0PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                finalAmountOut = (adjustedReserve1 - y) / token1PrecisionMultiplier - 2;
+                finalAmountOut = (adjustedReserve1 - y) / _token1PrecisionMultiplier - 2;
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
-                uint256 x = adjustedReserve1 + feeDeductedAmountIn * token1PrecisionMultiplier;
+                uint256 x = adjustedReserve1 + feeDeductedAmountIn * _token1PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                finalAmountOut = (adjustedReserve0 - y) / token0PrecisionMultiplier - 2;
+                finalAmountOut = (adjustedReserve0 - y) / _token0PrecisionMultiplier - 2;
             }
         }
     }
