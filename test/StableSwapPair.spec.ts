@@ -76,15 +76,15 @@ describe('StableSwapPair', () => {
     await pair.mint(wallet.address, overrides)
   }
   const swapTestCases: BigNumber[][] = [
-    [1, 5, 10,     '1006257844624175249'],
-    [1, 10, 5,      '985879082413862044'],
+    [1, 5, 10,     '1002651263714182148'],
+    [1, 10, 5,      '992341905362641134'],
 
-    [2, 5, 10,     '2008493094308204224'],
-    [2, 10, 5,     '1961214200230485312'],
+    [2, 5, 10,     '2003281110778287801'],
+    [2, 10, 5,     '1979182783593492678'],
 
-    [1, 10, 10,     '997829496549893024'],
-    [1, 100, 100,   '998883955539985270'],
-    [1, 1000, 1000, '998988395460697426']
+    [1, 10, 10,     '998410911049494949'],
+    [1, 100, 100,   '998941635021600997'],
+    [1, 1000, 1000, '998994163765181393']
   ].map(a => a.map(n => (typeof n === 'string' ? bigNumberify(n) : expandTo18Decimals(n))));
   swapTestCases.forEach((swapTestCase, i) => {
     it(`getInputPrice:${i}`, async () => {
@@ -187,7 +187,7 @@ describe('StableSwapPair', () => {
     await mineBlock(provider, (await provider.getBlock('latest')).timestamp + 1);
     const tx = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides);
     const receipt = await tx.wait();
-    expect(receipt.gasUsed).to.eq(77645)
+    expect(receipt.gasUsed).to.eq(74030)
   });
 
   it('burn', async () => {
@@ -251,13 +251,13 @@ describe('StableSwapPair', () => {
     await pair.transfer(pair.address, expectedLiquidity.sub(MINIMUM_LIQUIDITY));
     await pair.burn(wallet.address, overrides);
 
-    expect(await pair.totalSupply()).to.eq(MINIMUM_LIQUIDITY.add('1000000699991765669197'));
-    expect(await pair.balanceOf(other.address)).to.eq('699991765669197');
+    expect(await pair.totalSupply()).to.eq(MINIMUM_LIQUIDITY.add('1000000699995806552756'));
+    expect(await pair.balanceOf(other.address)).to.eq('699995806552756');
 
     // using 1000 here instead of the symbolic MINIMUM_LIQUIDITY because the amounts only happen to be equal...
     // ...because the initial liquidity amounts were equal
-    expect(await token0.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('499500680625328968030'));
-    expect(await token1.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('500500175172878048431'))
+    expect(await token0.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('499500677742184927584'));
+    expect(await token1.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('500500175173889278834'))
   });
 
   it('twoSideTransfer', async () => {

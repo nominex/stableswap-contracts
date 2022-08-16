@@ -17,4 +17,9 @@ library MathUtils {
             return b - a <= 1;
         }
     }
+
+    function divRoundUp(uint numerator, uint denumerator) internal pure returns (uint) {
+        return (numerator + denumerator - 1) / denumerator;
+    }
+
 }
