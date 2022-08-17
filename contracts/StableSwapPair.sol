@@ -87,13 +87,14 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         uint dBalance = _computeLiquidity(balance0, balance1, A);
         uint amount0 = balance0 - _reserve0;
         uint amount1 = balance1 - _reserve1;
+
         if (_totalSupply == 0) {
             liquidity = _computeLiquidity(amount0, amount1, A) - MINIMUM_LIQUIDITY;
             _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
-            uint256 dReserve = _computeLiquidity(reserve0, reserve1, A);
-            liquidity = (dBalance - dReserve) * _totalSupply/dReserve;
+            liquidity = MathUtils.min(amount0 * _totalSupply / _reserve0, amount1 * _totalSupply / _reserve1);
         }
+
         require(liquidity > 0, 'Nomiswap: INSUFFICIENT_LIQUIDITY_MINTED');
         _mint(to, liquidity);
 
@@ -229,14 +230,14 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
             if (tokenIn == token0) {
                 uint256 x = adjustedReserve1 - amountOut * _token1PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                uint256 dy = (y - adjustedReserve0) / _token0PrecisionMultiplier + 1;
-                finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
+                uint256 dy = (y - adjustedReserve0).divRoundUp(_token0PrecisionMultiplier);
+                finalAmountIn = (dy * MAX_FEE).divRoundUp(MAX_FEE - swapFee);
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
                 uint256 x = adjustedReserve0 - amountOut * _token0PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                uint256 dy = (y - adjustedReserve1) / _token1PrecisionMultiplier + 1;
-                finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
+                uint256 dy = (y - adjustedReserve1).divRoundUp(_token1PrecisionMultiplier);
+                finalAmountIn = (dy * MAX_FEE).divRoundUp(MAX_FEE - swapFee);
             }
         }
     }
@@ -247,7 +248,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         unchecked {
             uint256 _token0PrecisionMultiplier = token0PrecisionMultiplier;
             uint256 _token1PrecisionMultiplier = token1PrecisionMultiplier;
-            uint256 feeDeductedAmountIn = amountIn - (amountIn * swapFee) / MAX_FEE;
+            uint256 feeDeductedAmountIn = (amountIn * MAX_FEE - amountIn * swapFee) / MAX_FEE;
             uint256 adjustedReserve0 = _reserve0 * _token0PrecisionMultiplier;
             uint256 adjustedReserve1 = _reserve1 * _token1PrecisionMultiplier;
             uint256 A = getA();
@@ -256,12 +257,12 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
             if (tokenIn == token0) {
                 uint256 x = adjustedReserve0 + feeDeductedAmountIn * _token0PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                finalAmountOut = (adjustedReserve1 - y) / _token1PrecisionMultiplier - 1;
+                finalAmountOut = (adjustedReserve1 - y) / _token1PrecisionMultiplier;
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
                 uint256 x = adjustedReserve1 + feeDeductedAmountIn * _token1PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                finalAmountOut = (adjustedReserve0 - y) / _token0PrecisionMultiplier - 1;
+                finalAmountOut = (adjustedReserve0 - y) / _token0PrecisionMultiplier;
             }
         }
     }
@@ -364,9 +365,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
             yPrev = y;
             uint numerator = y * y + c;
             uint denominator = y * 2 + b - D;
-            y = numerator/denominator;
+            y = numerator.divRoundUp(denominator);
             if (y.within1(yPrev)) {
-                y = numerator.divRoundUp(denominator);
                 break;
             }
         }

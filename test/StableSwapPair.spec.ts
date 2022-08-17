@@ -84,7 +84,8 @@ describe('StableSwapPair', () => {
 
     [1, 10, 10,     '998410911049494949'],
     [1, 100, 100,   '998941635021600997'],
-    [1, 1000, 1000, '998994163765181393']
+    [1, 1000, 1000, '998994163765181393'],
+    ['3073608539079599913', 10, 10, '3064468431631499207']
   ].map(a => a.map(n => (typeof n === 'string' ? bigNumberify(n) : expandTo18Decimals(n))));
   swapTestCases.forEach((swapTestCase, i) => {
     it(`getInputPrice:${i}`, async () => {
@@ -282,5 +283,20 @@ describe('StableSwapPair', () => {
     await pair.swap(reverseOut, 0, wallet.address, '0x', overrides);
 
   });
+
+  it('case from router test', async () => {
+    const token0Amount = expandTo18Decimals(10);
+    const token1Amount = expandTo18Decimals(10);
+    await addLiquidity(token0Amount, token1Amount);
+
+    const input = "3073608539079599913";
+    const output = await pair.getAmountOut(token0.address, input);
+    expect(output).to.be.eq("3064468431631499207");
+    await token0.transfer(pair.address, input);
+
+    await pair.swap(0, output, wallet.address, '0x', overrides);
+
+  });
+
 
 });

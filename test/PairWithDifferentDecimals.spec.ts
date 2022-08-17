@@ -107,7 +107,7 @@ describe('StableSwapPair with different decimals', () => {
       await token0.transfer(pair.address, swapAmount);
       expect(await pair.getAmountOut(token0.address, swapAmount)).to.eq(expectedOutputAmount);
       expect(await pair.getAmountIn(token0.address, expectedOutputAmount)).to.eq(swapAmount);
-      await expect(pair.swap(0, expectedOutputAmount.add(2), wallet.address, '0x', overrides)).to.be.revertedWith(
+      await expect(pair.swap(0, expectedOutputAmount.add(3), wallet.address, '0x', overrides)).to.be.revertedWith(
         'Nomiswap: D'
       );
       await pair.swap(0, expectedOutputAmount, wallet.address, '0x', overrides)
