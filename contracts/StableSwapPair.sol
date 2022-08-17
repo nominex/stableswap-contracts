@@ -229,13 +229,13 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
             if (tokenIn == token0) {
                 uint256 x = adjustedReserve1 - amountOut * _token1PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                uint256 dy = (y - adjustedReserve0) / _token0PrecisionMultiplier;
+                uint256 dy = (y - adjustedReserve0) / _token0PrecisionMultiplier + 1;
                 finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
                 uint256 x = adjustedReserve0 - amountOut * _token0PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                uint256 dy = (y - adjustedReserve1) / _token1PrecisionMultiplier;
+                uint256 dy = (y - adjustedReserve1) / _token1PrecisionMultiplier + 1;
                 finalAmountIn = dy * MAX_FEE / (MAX_FEE - swapFee);
             }
         }
@@ -256,12 +256,12 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
             if (tokenIn == token0) {
                 uint256 x = adjustedReserve0 + feeDeductedAmountIn * _token0PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                finalAmountOut = (adjustedReserve1 - y) / _token1PrecisionMultiplier;
+                finalAmountOut = (adjustedReserve1 - y) / _token1PrecisionMultiplier - 1;
             } else {
                 require(tokenIn == token1, "INVALID_INPUT_TOKEN");
                 uint256 x = adjustedReserve1 + feeDeductedAmountIn * _token1PrecisionMultiplier;
                 uint256 y = _getY(x, d, A);
-                finalAmountOut = (adjustedReserve0 - y) / _token0PrecisionMultiplier;
+                finalAmountOut = (adjustedReserve0 - y) / _token0PrecisionMultiplier - 1;
             }
         }
     }
@@ -362,8 +362,11 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         // @dev Iterative approximation.
         for (uint256 i = 0; i < MAX_LOOP_LIMIT; i++) {
             yPrev = y;
-            y = (y * y + c).divRoundUp(y * 2 + b - D);
+            uint numerator = y * y + c;
+            uint denominator = y * 2 + b - D;
+            y = numerator/denominator;
             if (y.within1(yPrev)) {
+                y = numerator.divRoundUp(denominator);
                 break;
             }
         }
