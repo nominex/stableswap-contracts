@@ -34,7 +34,7 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
     uint112 private reserve1;           // uses single storage slot, accessible via getReserves
     uint32  private blockTimestampLast; // uses single storage slot, accessible via getReserves
 
-    uint128 public dLast; // invariant
+    uint256 public adminFee = 0;
     uint128 public devFee = uint128(Q112*(10-7)/uint(7)); // 70% (1/0.7-1)
 
 
@@ -89,7 +89,7 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
         uint balance0 = IERC20(token0).balanceOf(address(this));
         uint balance1 = IERC20(token1).balanceOf(address(this));
 
-        bool feeOn = _mintFee(_reserve0, _reserve1);
+        bool feeOn = _mintFee();
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         uint A = getA();
         uint dBalance = _computeLiquidity(balance0, balance1, A);
@@ -107,20 +107,18 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
         _mint(to, liquidity);
 
         _update(balance0, balance1);
-        if (feeOn) dLast = uint128(dBalance); // reserve0 and reserve1 are up-to-date
         emit Mint(msg.sender, amount0, amount1);
     }
 
     // this low-level function should be called from a contract which performs important safety checks
     function burn(address to) override external nonReentrant returns (uint amount0, uint amount1) {
-        (uint112 _reserve0, uint112 _reserve1,) = getReserves(); // gas savings
         address _token0 = token0;                                // gas savings
         address _token1 = token1;                                // gas savings
         uint balance0 = IERC20(_token0).balanceOf(address(this));
         uint balance1 = IERC20(_token1).balanceOf(address(this));
         uint liquidity = balanceOf[address(this)];
 
-        bool feeOn = _mintFee(_reserve0, _reserve1);
+        bool feeOn = _mintFee();
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         amount0 = liquidity * balance0 / _totalSupply; // using balances ensures pro-rata distribution
         amount1 = liquidity * balance1 / _totalSupply; // using balances ensures pro-rata distribution
@@ -132,7 +130,6 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
         balance1 = IERC20(_token1).balanceOf(address(this));
 
         _update(balance0, balance1);
-        if (feeOn) dLast = uint128(_computeLiquidity(reserve0, reserve1, getA())); // reserve0 and reserve1 are up-to-date
         emit Burn(msg.sender, amount0, amount1, to);
     }
 
@@ -172,6 +169,10 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
             uint256 dReserves = _computeLiquidityFromAdjustedBalances(adjustedReserve0, adjustedReserve1, A);
 
             require(dBalance >= dReserves, 'Nomiswap: D');
+
+            uint numerator = totalSupply * (dBalance - dReserves);
+            uint denominator = (dBalance * devFee/Q112) + dReserves;
+            adminFee += numerator / denominator;
         }
 
         _update(balance0, balance1);
@@ -323,22 +324,17 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
     }
 
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
-    function _mintFee(uint112 _reserve0, uint112 _reserve1) private returns (bool feeOn) {
+    function _mintFee() private returns (bool feeOn) {
         address feeTo = INomiswapFactory(factory()).feeTo();
         feeOn = feeTo != address(0);
-        uint _dLast = dLast; // gas savings
+        uint _adminFee = adminFee; // gas savings
         if (feeOn) {
-            if (_dLast != 0) {
-                uint d = _computeLiquidity(_reserve0, _reserve1, getA());
-                if (d > dLast) {
-                    uint numerator = totalSupply * (d - dLast);
-                    uint denominator = (d * devFee/Q112) + dLast;
-                    uint liquidity = numerator / denominator;
-                    if (liquidity > 0) _mint(feeTo, liquidity);
-                }
+            if (_adminFee != 0) {
+                _mint(feeTo, _adminFee);
+                adminFee = 0;
             }
-        } else if (_dLast != 0) {
-            dLast = 0;
+        } else if (_adminFee != 0) {
+            adminFee = 0;
         }
     }
 
