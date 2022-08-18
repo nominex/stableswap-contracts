@@ -14,7 +14,7 @@ chai.use(solidity);
 const TOTAL_SUPPLY = expandTo18Decimals(10000);
 const TEST_AMOUNT = expandTo18Decimals(10);
 
-describe('StableSwapERC20', () => {
+describe('NomiswapStableERC20', () => {
   const provider = new MockProvider({
       ganacheOptions: {
         chain: {

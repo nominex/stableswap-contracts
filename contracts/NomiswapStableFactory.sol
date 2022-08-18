@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity =0.8.15;
 
-import './StableSwapPair.sol';
+import './NomiswapStablePair.sol';
 import './interfaces/INomiswapFactory.sol';
 
-contract StableSwapFactory is INomiswapFactory {
+contract NomiswapStableFactory is INomiswapFactory {
 
     address public feeTo;
     address public feeToSetter;
@@ -33,7 +33,7 @@ contract StableSwapFactory is INomiswapFactory {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
         require(pair != address(0), "Nomiswap: PAIR_NOT_CREATED");
-        StableSwapPair(pair).initialize(token0, token1);
+        NomiswapStablePair(pair).initialize(token0, token1);
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);
@@ -63,12 +63,12 @@ contract StableSwapFactory is INomiswapFactory {
 
     function rampA(address _pair, uint32 _futureA, uint40 _futureTime) external {
         require(msg.sender == feeToSetter, 'Nomiswap: FORBIDDEN');
-        StableSwapPair(_pair).rampA(_futureA, _futureTime);
+        NomiswapStablePair(_pair).rampA(_futureA, _futureTime);
     }
 
     function stopRampA(address _pair) external {
         require(msg.sender == feeToSetter, 'Nomiswap: FORBIDDEN');
-        StableSwapPair(_pair).stopRampA();
+        NomiswapStablePair(_pair).stopRampA();
     }
 
 }

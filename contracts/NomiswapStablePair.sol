@@ -4,7 +4,7 @@ pragma solidity =0.8.15;
 import "./interfaces/INomiswapStablePair.sol";
 import "./interfaces/INomiswapCallee.sol";
 import "./interfaces/INomiswapFactory.sol";
-import "./StableSwapERC20.sol";
+import "./NomixwapStableERC20.sol";
 import "./libraries/MathUtils.sol";
 import "./libraries/UQ112x112.sol";
 import "./util/FactoryGuard.sol";
@@ -12,11 +12,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard, FactoryGuard {
+contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, ReentrancyGuard, FactoryGuard {
     using MathUtils for uint256;
-
-
-//    using UQ112x112 for uint224;
 
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;
 
@@ -59,10 +56,10 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         token0 = _token0;
         token1 = _token1;
         uint8 decimals0 = IERC20Metadata(_token0).decimals();
-        require(decimals0 <= 18, 'NomiswapPair: unsupported token');
+        require(decimals0 <= 18, 'NomiswapStablePair: unsupported token');
         token0PrecisionMultiplier = uint128(10)**(18 - decimals0);
         uint8 decimals1 = IERC20Metadata(_token1).decimals();
-        require(decimals1 <= 18, 'NomiswapPair: unsupported token');
+        require(decimals1 <= 18, 'NomiswapStablePair: unsupported token');
         token1PrecisionMultiplier = uint128(10)**(18 - decimals1);
     }
 
@@ -77,12 +74,12 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     }
 
     function setSwapFee(uint32 _swapFee) override external onlyFactory {
-        require(_swapFee <= MAX_FEE, 'NomiswapPair: FORBIDDEN_FEE');
+        require(_swapFee <= MAX_FEE, 'NomiswapStablePair: FORBIDDEN_FEE');
         swapFee = _swapFee;
     }
 
     function setDevFee(uint128 _devFee) override external onlyFactory {
-        require(_devFee != 0, "NomiswapPair: dev fee 0");
+        require(_devFee != 0, "NomiswapStablePair: dev fee 0");
         devFee = _devFee;
     }
 
@@ -195,8 +192,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     }
 
     function rampA(uint32 _futureA, uint40 _futureTime) override external nonReentrant onlyFactory {
-        require(block.timestamp >= initialATime + MIN_RAMP_TIME, 'NomiswapPair: INVALID_TIME');
-        require(_futureTime >= block.timestamp + MIN_RAMP_TIME, 'NomiswapPair: INVALID_FUTURE_TIME');
+        require(block.timestamp >= initialATime + MIN_RAMP_TIME, 'NomiswapStablePair: INVALID_TIME');
+        require(_futureTime >= block.timestamp + MIN_RAMP_TIME, 'NomiswapStablePair: INVALID_FUTURE_TIME');
 
         uint32 _initialA = uint32(getA());
         uint32 _futureAP = uint32(_futureA * A_PRECISION);

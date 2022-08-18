@@ -3,7 +3,7 @@ pragma solidity =0.8.15;
 
 import "./interfaces/INomiswapERC20.sol";
 
-abstract contract StableSwapERC20 is INomiswapERC20 {
+abstract contract NomiswapStableERC20 is INomiswapERC20 {
 
     uint256 constant MAX_UINT = type(uint256).max; // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 

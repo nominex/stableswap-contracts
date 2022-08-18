@@ -15,7 +15,7 @@ const overrides = {
   gasLimit: 9999999
 };
 
-describe('StableSwapPair with different decimals', () => {
+describe('NomiswapStablePair with different decimals', () => {
   const provider = new MockProvider({
     ganacheOptions: {
       chain: {
