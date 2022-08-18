@@ -66,6 +66,16 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         token1PrecisionMultiplier = uint128(10)**(18 - decimals1);
     }
 
+    function symbol() external view returns (string memory) {
+        return string.concat(
+            symbolPrefix,
+            "-",
+            IERC20Metadata(token0).symbol(),
+            "-",
+            IERC20Metadata(token1).symbol()
+        );
+    }
+
     function setSwapFee(uint32 _swapFee) override external onlyFactory {
         require(_swapFee <= MAX_FEE, 'NomiswapPair: FORBIDDEN_FEE');
         swapFee = _swapFee;

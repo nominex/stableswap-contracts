@@ -3,12 +3,12 @@ pragma solidity =0.8.15;
 
 import "./interfaces/INomiswapERC20.sol";
 
-contract StableSwapERC20 is INomiswapERC20 {
+abstract contract StableSwapERC20 is INomiswapERC20 {
 
     uint256 constant MAX_UINT = type(uint256).max; // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
-    string public constant name = 'Nomiswap LPs';
-    string public constant symbol = 'NMX-LP';
+    string public constant name = 'Nomiswap stable LPs';
+    string internal constant symbolPrefix = 'NMX-SLP';
     uint8 public constant decimals = 18;
     uint  public totalSupply;
     mapping(address => uint) public balanceOf;

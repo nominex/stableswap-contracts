@@ -14,7 +14,7 @@ chai.use(solidity);
 const TOTAL_SUPPLY = expandTo18Decimals(10000);
 const TEST_AMOUNT = expandTo18Decimals(10);
 
-describe('NomiswapERC20', () => {
+describe('StableSwapERC20', () => {
   const provider = new MockProvider({
       ganacheOptions: {
         chain: {
@@ -37,10 +37,9 @@ describe('NomiswapERC20', () => {
 
   it('name, symbol, decimals, totalSupply, balanceOf, DOMAIN_SEPARATOR, PERMIT_TYPEHASH', async () => {
     const name = await token.name();
-    expect(name).to.eq('Nomiswap LPs');
-    expect(await token.symbol()).to.eq('NMX-LP');
-      let val = await token.decimals();
-      expect(val).to.eq(18);
+    expect(name).to.eq('Nomiswap stable LPs');
+    let val = await token.decimals();
+    expect(val).to.eq(18);
     expect(await token.totalSupply()).to.eq(TOTAL_SUPPLY);
     expect(await token.balanceOf(wallet.address)).to.eq(TOTAL_SUPPLY);
     const network = await provider.detectNetwork();

@@ -7,4 +7,8 @@ contract ERC20 is StableSwapERC20 {
     constructor(uint _totalSupply) {
         _mint(msg.sender, _totalSupply);
     }
+
+    function symbol() external pure returns (string memory) {
+        return "ERC20";
+    }
 }
