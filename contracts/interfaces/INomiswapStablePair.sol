@@ -9,14 +9,14 @@ interface INomiswapStablePair is INomiswapPair {
     event RampA(uint256 oldA, uint256 newA, uint256 initialTime, uint256 futureTime);
     event StopRampA(uint256 A, uint256 t);
 
-    function devFee() external view returns (uint);
+    function devFee() external view returns (uint128);
 
 //    function burnSingle(address tokenOut, address recipient) external returns (uint256 amountOut);
 
-    function getA() external view returns (uint32);
+    function getA() external view returns (uint256);
 
     function setSwapFee(uint32) external;
-    function setDevFee(uint) external;
+    function setDevFee(uint128) external;
 
     function rampA(uint32 _futureA, uint40 _futureTime) external;
     function stopRampA() external;

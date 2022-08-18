@@ -15,11 +15,20 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard, FactoryGuard {
     using MathUtils for uint256;
 
-    uint224 constant Q112 = 2**112;
 
-    using UQ112x112 for uint224;
+//    using UQ112x112 for uint224;
 
-    uint public constant MINIMUM_LIQUIDITY = 10**3;
+    uint256 public constant MINIMUM_LIQUIDITY = 10**3;
+
+    uint256 internal constant MAX_FEE = 10000; // @dev 100%.
+    uint256 internal constant A_PRECISION = 100;
+
+    uint256 internal constant MAX_A = 10 ** 6;
+    uint256 internal constant MAX_A_CHANGE = 100;
+    uint256 internal constant MIN_RAMP_TIME = 86400;
+
+    uint256 private constant Q112 = 2**112;
+    uint256 private constant MAX_LOOP_LIMIT = 256;
 
     address public token0;
     address public token1;
@@ -28,27 +37,19 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     uint112 private reserve1;           // uses single storage slot, accessible via getReserves
     uint32  private blockTimestampLast; // uses single storage slot, accessible via getReserves
 
-    uint public dLast; // invariant
-    uint256 internal constant MAX_FEE = 10000; // @dev 100%.
-    uint32 public swapFee = 10; // uses 0.1% default
-    uint public devFee = uint(Q112*(10-7))/uint(7); // 70% (1/0.7-1)
+    uint128 public dLast; // invariant
+    uint128 public devFee = uint128(Q112*(10-7)/uint(7)); // 70% (1/0.7-1)
 
-    uint32 internal constant A_PRECISION = 100;
-
-    uint256 private constant MAX_LOOP_LIMIT = 256;
-
-    uint256 internal constant MAX_A = 10 ** 6;
-    uint256 internal constant MAX_A_CHANGE = 10;
-    uint256 internal constant MIN_RAMP_TIME = 86400;
 
 
     uint128 public token0PrecisionMultiplier; // uses single storage slot
     uint128 public token1PrecisionMultiplier; // uses single storage slot
 
-    uint32 initialA = 85 * A_PRECISION; // uses single storage slot
-    uint32 futureA = 85 * A_PRECISION; // uses single storage slot
+    uint32 initialA = uint32(85 * A_PRECISION); // uses single storage slot
+    uint32 futureA = uint32(85 * A_PRECISION); // uses single storage slot
     uint40 initialATime; // uses single storage slot
     uint40 futureATime; // uses single storage slot
+    uint32 public swapFee = 10; // uses 0.1% default
 
     constructor() FactoryGuard(msg.sender) {
         futureATime = uint40(block.timestamp);
@@ -70,7 +71,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         swapFee = _swapFee;
     }
 
-    function setDevFee(uint _devFee) override external onlyFactory {
+    function setDevFee(uint128 _devFee) override external onlyFactory {
         require(_devFee != 0, "NomiswapPair: dev fee 0");
         devFee = _devFee;
     }
@@ -89,7 +90,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         uint amount1 = balance1 - _reserve1;
 
         if (_totalSupply == 0) {
-            liquidity = _computeLiquidity(amount0, amount1, A) - MINIMUM_LIQUIDITY;
+            liquidity = dBalance - MINIMUM_LIQUIDITY;
             _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
             liquidity = MathUtils.min(amount0 * _totalSupply / _reserve0, amount1 * _totalSupply / _reserve1);
@@ -99,7 +100,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         _mint(to, liquidity);
 
         _update(balance0, balance1);
-        if (feeOn) dLast = dBalance; // reserve0 and reserve1 are up-to-date
+        if (feeOn) dLast = uint128(dBalance); // reserve0 and reserve1 are up-to-date
         emit Mint(msg.sender, amount0, amount1);
     }
 
@@ -124,7 +125,7 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         balance1 = IERC20(_token1).balanceOf(address(this));
 
         _update(balance0, balance1);
-        if (feeOn) dLast = _computeLiquidity(reserve0, reserve1, getA()); // reserve0 and reserve1 are up-to-date
+        if (feeOn) dLast = uint128(_computeLiquidity(reserve0, reserve1, getA())); // reserve0 and reserve1 are up-to-date
         emit Burn(msg.sender, amount0, amount1, to);
     }
 
@@ -187,8 +188,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         require(block.timestamp >= initialATime + MIN_RAMP_TIME, 'NomiswapPair: INVALID_TIME');
         require(_futureTime >= block.timestamp + MIN_RAMP_TIME, 'NomiswapPair: INVALID_FUTURE_TIME');
 
-        uint32 _initialA = getA();
-        uint32 _futureAP = _futureA * A_PRECISION;
+        uint32 _initialA = uint32(getA());
+        uint32 _futureAP = uint32(_futureA * A_PRECISION);
 
         require(_futureA > 0 && _futureA < MAX_A);
 
@@ -207,7 +208,8 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
     }
 
     function stopRampA() override external nonReentrant onlyFactory {
-        uint32 currentA = getA();
+        uint32 currentA = uint32(getA());
+
         initialA = currentA;
         futureA = currentA;
         initialATime = uint40(block.timestamp);
@@ -277,18 +279,18 @@ contract StableSwapPair is INomiswapStablePair, StableSwapERC20, ReentrancyGuard
         return _factory;
     }
 
-    function getA() override public view returns (uint32) {
-        uint40 t1  = futureATime;
-        uint32 A1  = futureA;
+    function getA() override public view returns (uint256) {
+        uint256 t1  = futureATime;
+        uint256 A1  = futureA;
 
         if (block.timestamp < t1) {
-            uint32 A0 = initialA;
-            uint40 t0 = initialATime;
+            uint256 A0 = initialA;
+            uint256 t0 = initialATime;
             // Expressions in uint32 cannot have negative numbers, thus "if"
             if (A1 > A0) {
-                return uint32(A0 + (block.timestamp - t0) * (A1 - A0) / (t1 - t0));
+                return A0 + (block.timestamp - t0) * (A1 - A0) / (t1 - t0);
             } else {
-                return uint32(A0 - (block.timestamp - t0) * (A0 - A1) / (t1 - t0));
+                return A0 - (block.timestamp - t0) * (A0 - A1) / (t1 - t0);
             }
         } else {
             // when t1 == 0 or block.timestamp >= t1
