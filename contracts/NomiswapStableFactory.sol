@@ -8,7 +8,7 @@ contract NomiswapStableFactory is INomiswapFactory {
 
     address public feeTo;
     address public feeToSetter;
-    bytes32 public INIT_CODE_HASH = keccak256(abi.encodePacked(type(StableSwapPair).creationCode));
+    bytes32 public INIT_CODE_HASH = keccak256(abi.encodePacked(type(NomiswapStablePair).creationCode));
 
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
@@ -27,7 +27,7 @@ contract NomiswapStableFactory is INomiswapFactory {
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
         require(token0 != address(0), 'Nomiswap: ZERO_ADDRESS');
         require(getPair[token0][token1] == address(0), 'Nomiswap: PAIR_EXISTS'); // single check is sufficient
-        bytes memory bytecode = type(StableSwapPair).creationCode;
+        bytes memory bytecode = type(NomiswapStablePair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)

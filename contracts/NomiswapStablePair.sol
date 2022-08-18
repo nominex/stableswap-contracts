@@ -89,7 +89,7 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
         uint balance0 = IERC20(token0).balanceOf(address(this));
         uint balance1 = IERC20(token1).balanceOf(address(this));
 
-        bool feeOn = _mintFee();
+        _mintFee();
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         uint A = getA();
         uint dBalance = _computeLiquidity(balance0, balance1, A);
@@ -118,7 +118,7 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
         uint balance1 = IERC20(_token1).balanceOf(address(this));
         uint liquidity = balanceOf[address(this)];
 
-        bool feeOn = _mintFee();
+        _mintFee();
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         amount0 = liquidity * balance0 / _totalSupply; // using balances ensures pro-rata distribution
         amount1 = liquidity * balance1 / _totalSupply; // using balances ensures pro-rata distribution
@@ -324,9 +324,9 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
     }
 
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
-    function _mintFee() private returns (bool feeOn) {
+    function _mintFee() private {
         address feeTo = INomiswapFactory(factory()).feeTo();
-        feeOn = feeTo != address(0);
+        bool feeOn = feeTo != address(0);
         uint _adminFee = adminFee; // gas savings
         if (feeOn) {
             if (_adminFee != 0) {
