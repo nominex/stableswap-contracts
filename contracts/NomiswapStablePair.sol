@@ -34,7 +34,7 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
     uint112 private reserve1;           // uses single storage slot, accessible via getReserves
     uint32  private blockTimestampLast; // uses single storage slot, accessible via getReserves
 
-    uint256 public adminFee = 0;
+    uint128 public adminFee = 1;
     uint128 public devFee = uint128(Q112*(10-7)/uint(7)); // 70% (1/0.7-1)
 
 
@@ -172,7 +172,7 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
 
             uint numerator = totalSupply * (dBalance - dReserves);
             uint denominator = (dBalance * devFee/Q112) + dReserves;
-            adminFee += numerator / denominator;
+            adminFee += uint128(numerator / denominator);
         }
 
         _update(balance0, balance1);
@@ -329,12 +329,12 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
         bool feeOn = feeTo != address(0);
         uint _adminFee = adminFee; // gas savings
         if (feeOn) {
-            if (_adminFee != 0) {
-                _mint(feeTo, _adminFee);
-                adminFee = 0;
+            if (_adminFee > 1) {
+                _mint(feeTo, _adminFee - 1);
+                adminFee = 1;
             }
-        } else if (_adminFee != 0) {
-            adminFee = 0;
+        } else if (_adminFee > 1) {
+            adminFee = 1;
         }
     }
 
