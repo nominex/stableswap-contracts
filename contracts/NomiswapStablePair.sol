@@ -170,8 +170,9 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
 
             require(dBalance >= dReserves, 'Nomiswap: D');
 
-            uint numerator = totalSupply * (dBalance - dReserves);
-            uint denominator = (dBalance * devFee/Q112) + dReserves;
+            uint256 dTotal = _computeLiquidity(balance0, balance1, A);
+            uint numerator = totalSupply * (dTotal - dReserves);
+            uint denominator = (dTotal * devFee/Q112) + dReserves;
             adminFee += uint128(numerator / denominator);
         }
 

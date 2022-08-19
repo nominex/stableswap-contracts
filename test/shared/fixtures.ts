@@ -5,8 +5,8 @@ import {deployContract, MockProvider} from 'ethereum-waffle'
 import {expandTo18Decimals} from './utilities'
 
 import ERC20 from '../../build/ERC20.json'
-import NomiswapFactory from '../../build/StableSwapFactory.json'
-import NomiswapPair from '../../build/StableSwapPair.json'
+import NomiswapFactory from '../../build/NomiswapStableFactory.json'
+import NomiswapPair from '../../build/NomiswapStablePair.json'
 
 import TestERC20 from '../../build/TestERC20.json'
 

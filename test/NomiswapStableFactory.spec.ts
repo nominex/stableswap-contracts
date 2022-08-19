@@ -7,7 +7,7 @@ import {solidity, MockProvider, createFixtureLoader, Fixture, deployContract} fr
 import {expandTo18Decimals, getCreate2Address} from './shared/utilities'
 import { factoryFixture } from './shared/fixtures'
 
-import NomiswapPair from '../build/StableSwapPair.json'
+import NomiswapStablePair from '../build/NomiswapStablePair.json'
 import ERC20 from '../build/ERC20.json';
 chai.use(solidity)
 
@@ -58,7 +58,7 @@ describe('NomiswapFactory', () => {
   });
 
   async function createPair(tokens: [string, string]) {
-    const bytecode = `0x${NomiswapPair.bytecode}`
+    const bytecode = `0x${NomiswapStablePair.bytecode}`
     const create2Address = getCreate2Address(factory.address, tokens, bytecode)
     await expect(factory.createPair(...tokens))
       .to.emit(factory, 'PairCreated')
@@ -71,7 +71,7 @@ describe('NomiswapFactory', () => {
     expect(await factory.allPairs(0)).to.eq(create2Address)
     expect(await factory.allPairsLength()).to.eq(1)
 
-    const pair = new Contract(create2Address, JSON.stringify(NomiswapPair.abi), provider)
+    const pair = new Contract(create2Address, JSON.stringify(NomiswapStablePair.abi), provider)
     expect(await pair.factory()).to.eq(factory.address)
     expect(await pair.token0()).to.eq(TEST_ADDRESSES[0])
     expect(await pair.token1()).to.eq(TEST_ADDRESSES[1])
@@ -88,7 +88,7 @@ describe('NomiswapFactory', () => {
   it('createPair:gas', async () => {
     const tx = await factory.createPair(...TEST_ADDRESSES);
     const receipt = await tx.wait();
-    expect(receipt.gasUsed).to.eq(3951166)
+    expect(receipt.gasUsed).to.eq(3933134)
   });
 
   it('setFeeTo', async () => {
