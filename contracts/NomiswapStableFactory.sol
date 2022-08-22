@@ -2,9 +2,9 @@
 pragma solidity =0.8.15;
 
 import './NomiswapStablePair.sol';
-import './interfaces/INomiswapFactory.sol';
+import './interfaces/INomiswapStableFactory.sol';
 
-contract NomiswapStableFactory is INomiswapFactory {
+contract NomiswapStableFactory is INomiswapStableFactory {
 
     address public feeTo;
     address public feeToSetter;
