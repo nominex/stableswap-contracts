@@ -25,7 +25,7 @@ describe('NomiswapStablePair', () => {
         mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
       },
       miner: {
-        gasLimit: 9999999
+        blockGasLimit: 9999999
       }
     }
   });

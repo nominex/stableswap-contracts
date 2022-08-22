@@ -2,7 +2,7 @@ import chai, { expect } from 'chai'
 import { Contract } from '@ethersproject/contracts'
 import { MaxUint256 } from 'ethers/constants'
 import { bigNumberify, hexlify, keccak256, defaultAbiCoder, toUtf8Bytes } from 'ethers/utils'
-import {solidity, MockProvider, deployContract} from 'ethereum-waffle'
+import { solidity, MockProvider, deployContract } from 'ethereum-waffle'
 import { ecsign } from 'ethereumjs-util'
 
 import { expandTo18Decimals, getApprovalDigest } from './shared/utilities'
@@ -24,7 +24,7 @@ describe('NomiswapStableERC20', () => {
             mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
         },
         miner: {
-            gasLimit: 9999999
+            blockGasLimit: 9999999
         }
       }
   });

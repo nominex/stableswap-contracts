@@ -4,7 +4,7 @@ pragma solidity =0.8.15;
 import "./interfaces/INomiswapStablePair.sol";
 import "./interfaces/INomiswapCallee.sol";
 import "./interfaces/INomiswapFactory.sol";
-import "./NomixwapStableERC20.sol";
+import "./NomiswapStableERC20.sol";
 import "./libraries/MathUtils.sol";
 import "./libraries/UQ112x112.sol";
 import "./util/FactoryGuard.sol";
@@ -17,7 +17,7 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
 
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;
 
-    uint256 internal constant MAX_FEE = 10000; // @dev 100%.
+    uint256 internal constant MAX_FEE = 100000; // @dev 100%.
     uint256 internal constant A_PRECISION = 100;
 
     uint256 internal constant MAX_A = 10 ** 6;
@@ -46,7 +46,7 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
     uint32 futureA = uint32(85 * A_PRECISION); // uses single storage slot
     uint40 initialATime; // uses single storage slot
     uint40 futureATime; // uses single storage slot
-    uint32 public swapFee = 10; // uses 0.1% default
+    uint32 public swapFee = 100; // uses 0.1% default
 
     constructor() FactoryGuard(msg.sender) {
         futureATime = uint40(block.timestamp);

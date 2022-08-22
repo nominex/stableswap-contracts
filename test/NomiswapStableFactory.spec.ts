@@ -2,9 +2,9 @@ import chai, { expect } from 'chai'
 import { Contract } from '@ethersproject/contracts'
 import { AddressZero } from 'ethers/constants'
 import { bigNumberify } from 'ethers/utils'
-import {solidity, MockProvider, createFixtureLoader, Fixture, deployContract} from 'ethereum-waffle'
+import { solidity, MockProvider, createFixtureLoader, Fixture, deployContract } from 'ethereum-waffle'
 
-import {expandTo18Decimals, getCreate2Address} from './shared/utilities'
+import { expandTo18Decimals, getCreate2Address } from './shared/utilities'
 import { factoryFixture } from './shared/fixtures'
 
 import NomiswapStablePair from '../build/NomiswapStablePair.json'

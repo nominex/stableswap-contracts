@@ -1,11 +1,11 @@
-import chai, {expect} from 'chai'
-import {Contract} from '@ethersproject/contracts'
-import {createFixtureLoader, MockProvider, solidity} from 'ethereum-waffle'
-import {BigNumber, bigNumberify} from 'ethers/utils'
+import chai, { expect } from 'chai'
+import { Contract } from '@ethersproject/contracts'
+import { createFixtureLoader, MockProvider, solidity } from 'ethereum-waffle'
+import { BigNumber, bigNumberify } from 'ethers/utils'
 
-import {expandTo18Decimals, mineBlock} from './shared/utilities'
-import {pairWithDifferentDecimalsFixture} from './shared/fixtures'
-import {AddressZero} from 'ethers/constants'
+import { expandTo18Decimals, mineBlock } from './shared/utilities'
+import { pairWithDifferentDecimalsFixture } from './shared/fixtures'
+import { AddressZero } from 'ethers/constants'
 
 const MINIMUM_LIQUIDITY = bigNumberify(10).pow(3);
 
@@ -25,7 +25,7 @@ describe('NomiswapStablePair with different decimals', () => {
         mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
       },
       miner: {
-        gasLimit: 9999999
+        blockGasLimit: 9999999
       }
     }
   });
