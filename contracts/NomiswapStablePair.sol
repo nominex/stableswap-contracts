@@ -37,8 +37,6 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
     uint128 public adminFee = 1;
     uint128 public devFee = uint128(Q112*(10-7)/uint(7)); // 70% (1/0.7-1)
 
-
-
     uint128 public token0PrecisionMultiplier; // uses single storage slot
     uint128 public token1PrecisionMultiplier; // uses single storage slot
 
@@ -91,12 +89,12 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
 
         _mintFee();
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
-        uint A = getA();
-        uint dBalance = _computeLiquidity(balance0, balance1, A);
         uint amount0 = balance0 - _reserve0;
         uint amount1 = balance1 - _reserve1;
 
         if (_totalSupply == 0) {
+            uint A = getA();
+            uint dBalance = _computeLiquidity(balance0, balance1, A);
             liquidity = dBalance - MINIMUM_LIQUIDITY;
             _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
