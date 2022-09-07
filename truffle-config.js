@@ -70,6 +70,7 @@ module.exports = {
   ],
 
   api_keys: {
-    etherscan: nconf.get("ETHERSCAN_API_KEY")
+    etherscan: nconf.get("ETHERSCAN_API_KEY"),
+    bscscan: nconf.get("ETHERSCAN_API_KEY")
   }
 };

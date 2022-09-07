@@ -27,8 +27,8 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
     uint256 private constant Q112 = 2**112;
     uint256 private constant MAX_LOOP_LIMIT = 256;
 
-    address public token0;
-    address public token1;
+    address public immutable token0;
+    address public immutable token1;
 
     uint112 private reserve0;           // uses single storage slot, accessible via getReserves
     uint112 private reserve1;           // uses single storage slot, accessible via getReserves
@@ -37,8 +37,8 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
     uint128 public adminFee = 1;
     uint128 public devFee = uint128(Q112*(10-7)/uint(7)); // 70% (1/0.7-1)
 
-    uint128 public token0PrecisionMultiplier; // uses single storage slot
-    uint128 public token1PrecisionMultiplier; // uses single storage slot
+    uint128 public immutable token0PrecisionMultiplier; // uses single storage slot
+    uint128 public immutable token1PrecisionMultiplier; // uses single storage slot
 
     uint32 initialA = uint32(85 * A_PRECISION); // uses single storage slot
     uint32 futureA = uint32(85 * A_PRECISION); // uses single storage slot
@@ -46,11 +46,8 @@ contract NomiswapStablePair is INomiswapStablePair, NomiswapStableERC20, Reentra
     uint40 futureATime; // uses single storage slot
     uint32 public swapFee = 100; // uses 0.1% default
 
-    constructor() FactoryGuard(msg.sender) {
+    constructor(address _token0, address _token1) FactoryGuard(msg.sender) {
         futureATime = uint40(block.timestamp);
-    }
-
-    function initialize(address _token0, address _token1) external onlyFactory {
         token0 = _token0;
         token1 = _token1;
         uint8 decimals0 = IERC20Metadata(_token0).decimals();
