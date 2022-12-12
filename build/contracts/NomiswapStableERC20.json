@@ -369,7 +369,7 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity =0.8.15;\n\nimport \"./interfaces/INomiswapERC20.sol\";\n\nabstract contract NomiswapStableERC20 is INomiswapERC20 {\n\n    uint256 constant MAX_UINT = type(uint256).max; // 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\n\n    string public constant name = 'Nomiswap stable LPs';\n    string internal constant symbolPrefix = 'NMX-SLP';\n    uint8 public constant decimals = 18;\n    uint  public totalSupply;\n    mapping(address => uint) public balanceOf;\n    mapping(address => mapping(address => uint)) public allowance;\n\n    bytes32 public immutable DOMAIN_SEPARATOR;\n    // keccak256(\"Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)\");\n    bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;\n    mapping(address => uint) public nonces;\n\n    constructor() {\n        uint chainId = block.chainid;\n\n        DOMAIN_SEPARATOR = keccak256(\n            abi.encode(\n                keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),\n                keccak256(bytes(name)),\n                keccak256(bytes('1')),\n                chainId,\n                address(this)\n            )\n        );\n    }\n\n    function _mint(address to, uint value) internal {\n        totalSupply = totalSupply + value;\n        balanceOf[to] = balanceOf[to] + value;\n        emit Transfer(address(0), to, value);\n    }\n\n    function _burn(address from, uint value) internal {\n        balanceOf[from] = balanceOf[from] - value;\n        totalSupply = totalSupply - value;\n        emit Transfer(from, address(0), value);\n    }\n\n    function _approve(address owner, address spender, uint value) private {\n        allowance[owner][spender] = value;\n        emit Approval(owner, spender, value);\n    }\n\n    function _transfer(address from, address to, uint value) private {\n        balanceOf[from] = balanceOf[from] - value;\n        balanceOf[to] = balanceOf[to] + value;\n        emit Transfer(from, to, value);\n    }\n\n    function approve(address spender, uint value) external returns (bool) {\n        _approve(msg.sender, spender, value);\n        return true;\n    }\n\n    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {\n        _approve(msg.sender, spender, allowance[msg.sender][spender] + addedValue);\n        return true;\n    }\n\n    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {\n        uint256 currentAllowance = allowance[msg.sender][spender];\n        require(currentAllowance >= subtractedValue, \"NomiswapStableERC20: decreased allowance below zero\");\n        _approve(msg.sender, spender, currentAllowance - subtractedValue);\n        return true;\n    }\n\n    function transfer(address to, uint value) external returns (bool) {\n        _transfer(msg.sender, to, value);\n        return true;\n    }\n\n    function transferFrom(address from, address to, uint value) external returns (bool) {\n        if (allowance[from][msg.sender] != MAX_UINT) {\n            allowance[from][msg.sender] = allowance[from][msg.sender] - value;\n        }\n        _transfer(from, to, value);\n        return true;\n    }\n\n    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external {\n        require(deadline >= block.timestamp, 'Nomiswap: EXPIRED');\n        bytes32 digest = keccak256(\n            abi.encodePacked(\n                '\\x19\\x01',\n                DOMAIN_SEPARATOR,\n                keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline))\n            )\n        );\n        address recoveredAddress = ecrecover(digest, v, r, s);\n        require(recoveredAddress != address(0) && recoveredAddress == owner, 'Nomiswap: INVALID_SIGNATURE');\n        _approve(owner, spender, value);\n    }\n\n}\n\n",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/NomiswapStableERC20.sol",
+  "sourcePath": "/Users/plyuriy/projects/dex/stableswap-contracts/contracts/NomiswapStableERC20.sol",
   "ast": {
     "absolutePath": "project:/contracts/NomiswapStableERC20.sol",
     "exportedSymbols": {
@@ -380,7 +380,7 @@
         142
       ],
       "INomiswapERC20": [
-        3411
+        3396
       ],
       "NomiswapStableERC20": [
         1186
@@ -408,7 +408,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 1187,
-        "sourceUnit": 3412,
+        "sourceUnit": 3397,
         "src": "71:41:6",
         "symbolAliases": [],
         "unitAlias": ""
@@ -421,7 +421,7 @@
               "id": 758,
               "name": "INomiswapERC20",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 3411,
+              "referencedDeclaration": 3396,
               "src": "155:14:6"
             },
             "id": 759,
@@ -436,7 +436,7 @@
         "id": 1186,
         "linearizedBaseContracts": [
           1186,
-          3411,
+          3396,
           142,
           117
         ],
@@ -830,7 +830,7 @@
           },
           {
             "baseFunctions": [
-              3381
+              3366
             ],
             "constant": false,
             "functionSelector": "3644e515",
@@ -861,7 +861,7 @@
           },
           {
             "baseFunctions": [
-              3386
+              3371
             ],
             "constant": true,
             "functionSelector": "30adf81f",
@@ -908,7 +908,7 @@
           },
           {
             "baseFunctions": [
-              3393
+              3378
             ],
             "constant": false,
             "functionSelector": "7ecebe00",
@@ -4954,7 +4954,7 @@
           },
           {
             "baseFunctions": [
-              3410
+              3395
             ],
             "body": {
               "id": 1184,
@@ -6125,7 +6125,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.9",
-  "updatedAt": "2022-09-06T06:32:33.158Z",
+  "updatedAt": "2022-12-01T10:31:15.570Z",
   "devdoc": {
     "kind": "dev",
     "methods": {

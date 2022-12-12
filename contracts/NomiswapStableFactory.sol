@@ -9,6 +9,7 @@ contract NomiswapStableFactory is INomiswapStableFactory {
     address public feeTo;
     address public feeToSetter;
     bytes32 public INIT_CODE_HASH = keccak256(abi.encodePacked(type(NomiswapStablePair).creationCode));
+    string public constant version = 'NomiswapStableFactory 2.0.0';
 
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;

@@ -4,11 +4,11 @@ import {deployContract, MockProvider} from 'ethereum-waffle'
 
 import {expandTo18Decimals} from './utilities'
 
-import ERC20 from '../../build/ERC20.json'
-import NomiswapFactory from '../../build/NomiswapStableFactory.json'
-import NomiswapPair from '../../build/NomiswapStablePair.json'
+import ERC20 from '../../build/contracts/ERC20.json'
+import NomiswapFactory from '../../build/contracts/NomiswapStableFactory.json'
+import NomiswapPair from '../../build/contracts/NomiswapStablePair.json'
 
-import TestERC20 from '../../build/TestERC20.json'
+import TestERC20 from '../../build/contracts/TestERC20.json'
 
 interface FactoryFixture {
   factory: Contract

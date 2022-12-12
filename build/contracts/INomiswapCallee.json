@@ -39,20 +39,20 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity >=0.5.0;\n\ninterface INomiswapCallee {\n    function nomiswapCall(address sender, uint amount0, uint amount1, bytes calldata data) external;\n}\n",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/interfaces/INomiswapCallee.sol",
+  "sourcePath": "/Users/plyuriy/projects/dex/stableswap-contracts/contracts/interfaces/INomiswapCallee.sol",
   "ast": {
     "absolutePath": "project:/contracts/interfaces/INomiswapCallee.sol",
     "exportedSymbols": {
       "INomiswapCallee": [
-        3308
+        3356
       ]
     },
-    "id": 3309,
+    "id": 3357,
     "license": "GPL-3.0-or-later",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 3296,
+        "id": 3344,
         "literals": [
           "solidity",
           ">=",
@@ -69,9 +69,9 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "fullyImplemented": false,
-        "id": 3308,
+        "id": 3356,
         "linearizedBaseContracts": [
-          3308
+          3356
         ],
         "name": "INomiswapCallee",
         "nameLocation": "81:15:9",
@@ -79,7 +79,7 @@
         "nodes": [
           {
             "functionSelector": "22109682",
-            "id": 3307,
+            "id": 3355,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
@@ -87,17 +87,17 @@
             "nameLocation": "112:12:9",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 3305,
+              "id": 3353,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 3298,
+                  "id": 3346,
                   "mutability": "mutable",
                   "name": "sender",
                   "nameLocation": "133:6:9",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3307,
+                  "scope": 3355,
                   "src": "125:14:9",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -106,7 +106,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 3297,
+                    "id": 3345,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "125:7:9",
@@ -120,12 +120,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 3300,
+                  "id": 3348,
                   "mutability": "mutable",
                   "name": "amount0",
                   "nameLocation": "146:7:9",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3307,
+                  "scope": 3355,
                   "src": "141:12:9",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -134,7 +134,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 3299,
+                    "id": 3347,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "141:4:9",
@@ -147,12 +147,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 3302,
+                  "id": 3350,
                   "mutability": "mutable",
                   "name": "amount1",
                   "nameLocation": "160:7:9",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3307,
+                  "scope": 3355,
                   "src": "155:12:9",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -161,7 +161,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 3301,
+                    "id": 3349,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "155:4:9",
@@ -174,12 +174,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 3304,
+                  "id": 3352,
                   "mutability": "mutable",
                   "name": "data",
                   "nameLocation": "184:4:9",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3307,
+                  "scope": 3355,
                   "src": "169:19:9",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -188,7 +188,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 3303,
+                    "id": 3351,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "169:5:9",
@@ -203,19 +203,19 @@
               "src": "124:65:9"
             },
             "returnParameters": {
-              "id": 3306,
+              "id": 3354,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "198:0:9"
             },
-            "scope": 3308,
+            "scope": 3356,
             "src": "103:96:9",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 3309,
+        "scope": 3357,
         "src": "71:130:9",
         "usedErrors": []
       }
@@ -228,7 +228,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.9",
-  "updatedAt": "2022-09-06T06:14:50.368Z",
+  "updatedAt": "2022-12-01T10:31:15.593Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

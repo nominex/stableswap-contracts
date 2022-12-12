@@ -76,16 +76,16 @@ describe('NomiswapStablePair', () => {
     await pair.mint(wallet.address, overrides)
   }
   const swapTestCases: BigNumber[][] = [
-    [1, 5, 10,     '1002651263714182148'],
-    [1, 10, 5,      '992341905362641134'],
+    [1, 5, 10,     '1002651263549619893'],
+    [1, 10, 5,      '992341905199939338'],
 
-    [2, 5, 10,     '2003281110778287801'],
-    [2, 10, 5,     '1979182783593492678'],
+    [2, 5, 10,     '2003281110449738491'],
+    [2, 10, 5,     '1979182783270639837'],
 
-    [1, 10, 10,     '998410911049494949'],
-    [1, 100, 100,   '998941635021600997'],
-    [1, 1000, 1000, '998994163765181393'],
-    ['3073608539079599913', 10, 10, '3064468431631499207']
+    [1, 10, 10,     '998410910885544801'],
+    [1, 100, 100,   '998941634857474575'],
+    [1, 1000, 1000, '998994163601037707'],
+    ['3073608539079599913', 10, 10, '3064468431129174971']
   ].map(a => a.map(n => (typeof n === 'string' ? bigNumberify(n) : expandTo18Decimals(n))));
   swapTestCases.forEach((swapTestCase, i) => {
     it(`getInputPrice:${i}`, async () => {
@@ -104,10 +104,10 @@ describe('NomiswapStablePair', () => {
   });
 
   const optimisticTestCases: BigNumber[][] = [
-    ['999000000000000000', 5, 10, 1], // given amountIn, amountOut = floor(amountIn * .999)
-    ['999000000000000000', 10, 5, 1],
-    ['999000000000000000', 5, 5, 1],
-    [1, 5, 5, '1001001001001001002'] // given amountOut, amountIn = ceiling(amountOut / .999)
+    ['998999999835854396', 5, 10, 1], // given amountIn, amountOut = floor(amountIn * .999)
+    ['998999999835854396', 10, 5, 1],
+    ['998999999835854396', 5, 5, 1],
+    [1, 5, 5, '1001001001165475390'] // given amountOut, amountIn = ceiling(amountOut / .999)
   ].map(a => a.map(n => (typeof n === 'string' ? bigNumberify(n) : expandTo18Decimals(n))));
   optimisticTestCases.forEach((optimisticTestCase, i) => {
     it(`optimistic:${i}`, async () => {
@@ -188,7 +188,7 @@ describe('NomiswapStablePair', () => {
     await mineBlock(provider, (await provider.getBlock('latest')).timestamp + 1);
     const tx = await pair.swap(expectedOutputAmount, 0, wallet.address, '0x', overrides);
     const receipt = await tx.wait();
-    expect(receipt.gasUsed).to.eq(89833)
+    expect(receipt.gasUsed).to.eq(82849)
   });
 
   it('burn', async () => {
@@ -253,13 +253,13 @@ describe('NomiswapStablePair', () => {
     expect(await pair.adminFee()).to.not.eq(1);
     await pair.burn(wallet.address, overrides);
 
-    expect(await pair.totalSupply()).to.eq(MINIMUM_LIQUIDITY.add('1000000699995806552756'));
+    expect(await pair.totalSupply()).to.eq(MINIMUM_LIQUIDITY.add('1000000699995921453974'));
     expect(await pair.balanceOf(other.address)).to.not.eq('0');
 
     // using 1000 here instead of the symbolic MINIMUM_LIQUIDITY because the amounts only happen to be equal...
     // ...because the initial liquidity amounts were equal
-    expect(await token0.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('499500677742184927584'));
-    expect(await token1.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('500500175173889278834'))
+    expect(await token0.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('499500677742295696044'));
+    expect(await token1.balanceOf(pair.address)).to.eq(bigNumberify(1000).add('500500175173918032844'))
   });
 
   it('twoSideTransfer', async () => {
@@ -292,7 +292,7 @@ describe('NomiswapStablePair', () => {
 
     const input = "3073608539079599913";
     const output = await pair.getAmountOut(token0.address, input);
-    expect(output).to.be.eq("3064468431631499207");
+    expect(output).to.be.eq("3064468431129174971");
     await token0.transfer(pair.address, input);
 
     await pair.swap(0, output, wallet.address, '0x', overrides);

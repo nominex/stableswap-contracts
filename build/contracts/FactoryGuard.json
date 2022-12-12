@@ -320,20 +320,20 @@
   "sourceMap": "71:248:19:-:0;;;252:64;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;-1:-1:-1;;;;;291:18:19;;;71:248;;14:290:20;84:6;137:2;125:9;116:7;112:23;108:32;105:52;;;153:1;150;143:12;105:52;179:16;;-1:-1:-1;;;;;224:31:20;;214:42;;204:70;;270:1;267;260:12;204:70;293:5;14:290;-1:-1:-1;;;14:290:20:o;:::-;71:248:19;;;;;;;;;;;",
   "deployedSourceMap": "71:248:19:-:0;;;;;",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity =0.8.15;\n\ncontract FactoryGuard {\n\n    address immutable internal _factory;\n    modifier onlyFactory() {\n        require(msg.sender == _factory, 'Nomiswap: FORBIDDEN');\n        _;\n    }\n\n    constructor(address factory) {\n        _factory = factory;\n    }\n\n}",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/util/FactoryGuard.sol",
+  "sourcePath": "/Users/plyuriy/projects/dex/stableswap-contracts/contracts/util/FactoryGuard.sol",
   "ast": {
     "absolutePath": "project:/contracts/util/FactoryGuard.sol",
     "exportedSymbols": {
       "FactoryGuard": [
-        4177
+        4225
       ]
     },
-    "id": 4178,
+    "id": 4226,
     "license": "GPL-3.0-or-later",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 4152,
+        "id": 4200,
         "literals": [
           "solidity",
           "=",
@@ -350,9 +350,9 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 4177,
+        "id": 4225,
         "linearizedBaseContracts": [
-          4177
+          4225
         ],
         "name": "FactoryGuard",
         "nameLocation": "80:12:19",
@@ -360,12 +360,12 @@
         "nodes": [
           {
             "constant": false,
-            "id": 4154,
+            "id": 4202,
             "mutability": "immutable",
             "name": "_factory",
             "nameLocation": "127:8:19",
             "nodeType": "VariableDeclaration",
-            "scope": 4177,
+            "scope": 4225,
             "src": "100:35:19",
             "stateVariable": true,
             "storageLocation": "default",
@@ -374,7 +374,7 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 4153,
+              "id": 4201,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "100:7:19",
@@ -388,7 +388,7 @@
           },
           {
             "body": {
-              "id": 4165,
+              "id": 4213,
               "nodeType": "Block",
               "src": "164:82:19",
               "statements": [
@@ -400,14 +400,14 @@
                           "typeIdentifier": "t_address",
                           "typeString": "address"
                         },
-                        "id": 4160,
+                        "id": 4208,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "leftExpression": {
                           "expression": {
-                            "id": 4157,
+                            "id": 4205,
                             "name": "msg",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
@@ -418,7 +418,7 @@
                               "typeString": "msg"
                             }
                           },
-                          "id": 4158,
+                          "id": 4206,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -434,11 +434,11 @@
                         "nodeType": "BinaryOperation",
                         "operator": "==",
                         "rightExpression": {
-                          "id": 4159,
+                          "id": 4207,
                           "name": "_factory",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 4154,
+                          "referencedDeclaration": 4202,
                           "src": "196:8:19",
                           "typeDescriptions": {
                             "typeIdentifier": "t_address",
@@ -453,7 +453,7 @@
                       },
                       {
                         "hexValue": "4e6f6d69737761703a20464f5242494444454e",
-                        "id": 4161,
+                        "id": 4209,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -479,7 +479,7 @@
                           "typeString": "literal_string \"Nomiswap: FORBIDDEN\""
                         }
                       ],
-                      "id": 4156,
+                      "id": 4204,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -493,7 +493,7 @@
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 4162,
+                    "id": 4210,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -508,23 +508,23 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 4163,
+                  "id": 4211,
                   "nodeType": "ExpressionStatement",
                   "src": "174:54:19"
                 },
                 {
-                  "id": 4164,
+                  "id": 4212,
                   "nodeType": "PlaceholderStatement",
                   "src": "238:1:19"
                 }
               ]
             },
-            "id": 4166,
+            "id": 4214,
             "name": "onlyFactory",
             "nameLocation": "150:11:19",
             "nodeType": "ModifierDefinition",
             "parameters": {
-              "id": 4155,
+              "id": 4203,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "161:2:19"
@@ -535,23 +535,23 @@
           },
           {
             "body": {
-              "id": 4175,
+              "id": 4223,
               "nodeType": "Block",
               "src": "281:35:19",
               "statements": [
                 {
                   "expression": {
-                    "id": 4173,
+                    "id": 4221,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 4171,
+                      "id": 4219,
                       "name": "_factory",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4154,
+                      "referencedDeclaration": 4202,
                       "src": "291:8:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -561,11 +561,11 @@
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 4172,
+                      "id": 4220,
                       "name": "factory",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4168,
+                      "referencedDeclaration": 4216,
                       "src": "302:7:19",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -578,13 +578,13 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 4174,
+                  "id": 4222,
                   "nodeType": "ExpressionStatement",
                   "src": "291:18:19"
                 }
               ]
             },
-            "id": 4176,
+            "id": 4224,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [],
@@ -592,17 +592,17 @@
             "nameLocation": "-1:-1:-1",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4169,
+              "id": 4217,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4168,
+                  "id": 4216,
                   "mutability": "mutable",
                   "name": "factory",
                   "nameLocation": "272:7:19",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4176,
+                  "scope": 4224,
                   "src": "264:15:19",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -611,7 +611,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4167,
+                    "id": 4215,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "264:7:19",
@@ -627,19 +627,19 @@
               "src": "263:17:19"
             },
             "returnParameters": {
-              "id": 4170,
+              "id": 4218,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "281:0:19"
             },
-            "scope": 4177,
+            "scope": 4225,
             "src": "252:64:19",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 4178,
+        "scope": 4226,
         "src": "71:248:19",
         "usedErrors": []
       }
@@ -652,7 +652,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.9",
-  "updatedAt": "2022-09-06T06:14:50.440Z",
+  "updatedAt": "2022-12-01T10:31:15.603Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

@@ -4,18 +4,18 @@ import { AddressZero } from 'ethers/constants'
 import { bigNumberify } from 'ethers/utils'
 import { solidity, MockProvider, createFixtureLoader, Fixture, deployContract } from 'ethereum-waffle'
 
-import { expandTo18Decimals, getCreate2Address } from './shared/utilities'
+import { expandTo18Decimals, getPairAddress } from './shared/utilities'
 import { factoryFixture } from './shared/fixtures'
 
-import NomiswapStablePair from '../build/NomiswapStablePair.json'
-import ERC20 from '../build/ERC20.json';
+import NomiswapStablePair from '../build/contracts/NomiswapStablePair.json'
+import ERC20 from '../build/contracts/ERC20.json';
 chai.use(solidity)
 
 const TOTAL_SUPPLY = expandTo18Decimals(10000);
 
 const TEST_ADDRESSES: [string, string] = [
-  '0x1000000000000000000000000000000000000000',
-  '0x2000000000000000000000000000000000000000'
+  '0x1000000000000000000000000000000000000001',
+  '0x2000000000000000000000000000000000000002'
 ]
 
 describe('NomiswapFactory', () => {
@@ -28,7 +28,7 @@ describe('NomiswapFactory', () => {
         mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
       },
       miner: {
-        gasLimit: 9999999
+        blockGasLimit: 9999999
       }
     }
   });
@@ -58,8 +58,8 @@ describe('NomiswapFactory', () => {
   });
 
   async function createPair(tokens: [string, string]) {
-    const bytecode = `0x${NomiswapStablePair.bytecode}`
-    const create2Address = getCreate2Address(factory.address, tokens, bytecode)
+    const bytecode = `${NomiswapStablePair.bytecode}`
+    const create2Address = getPairAddress(factory.address, tokens, bytecode)
     await expect(factory.createPair(...tokens))
       .to.emit(factory, 'PairCreated')
       .withArgs(TEST_ADDRESSES[0], TEST_ADDRESSES[1], create2Address, bigNumberify(1))
@@ -88,7 +88,7 @@ describe('NomiswapFactory', () => {
   it('createPair:gas', async () => {
     const tx = await factory.createPair(...TEST_ADDRESSES);
     const receipt = await tx.wait();
-    expect(receipt.gasUsed).to.eq(3933134)
+    expect(receipt.gasUsed).to.eq(3861643)
   });
 
   it('setFeeTo', async () => {

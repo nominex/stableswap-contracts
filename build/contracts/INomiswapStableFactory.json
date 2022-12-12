@@ -241,23 +241,23 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity >=0.5.0;\n\nimport \"./INomiswapFactory.sol\";\n\ninterface INomiswapStableFactory is INomiswapFactory {\n\n    function rampA(address _pair, uint32 _futureA, uint40 _futureTime) external;\n    function stopRampA(address _pair) external;\n    \n}\n",
-  "sourcePath": "/home/eraserpl/NetBeansProjects/stableswap-contracts/contracts/interfaces/INomiswapStableFactory.sol",
+  "sourcePath": "/Users/plyuriy/projects/dex/stableswap-contracts/contracts/interfaces/INomiswapStableFactory.sol",
   "ast": {
     "absolutePath": "project:/contracts/interfaces/INomiswapStableFactory.sol",
     "exportedSymbols": {
       "INomiswapFactory": [
-        3423
+        3471
       ],
       "INomiswapStableFactory": [
-        3556
+        3604
       ]
     },
-    "id": 3557,
+    "id": 3605,
     "license": "GPL-3.0-or-later",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 3538,
+        "id": 3586,
         "literals": [
           "solidity",
           ">=",
@@ -270,11 +270,11 @@
       {
         "absolutePath": "project:/contracts/interfaces/INomiswapFactory.sol",
         "file": "./INomiswapFactory.sol",
-        "id": 3539,
+        "id": 3587,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 3557,
-        "sourceUnit": 3424,
+        "scope": 3605,
+        "sourceUnit": 3472,
         "src": "71:32:13",
         "symbolAliases": [],
         "unitAlias": ""
@@ -284,13 +284,13 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 3540,
+              "id": 3588,
               "name": "INomiswapFactory",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 3423,
+              "referencedDeclaration": 3471,
               "src": "141:16:13"
             },
-            "id": 3541,
+            "id": 3589,
             "nodeType": "InheritanceSpecifier",
             "src": "141:16:13"
           }
@@ -299,10 +299,10 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "fullyImplemented": false,
-        "id": 3556,
+        "id": 3604,
         "linearizedBaseContracts": [
-          3556,
-          3423
+          3604,
+          3471
         ],
         "name": "INomiswapStableFactory",
         "nameLocation": "115:22:13",
@@ -310,7 +310,7 @@
         "nodes": [
           {
             "functionSelector": "bcec1e4d",
-            "id": 3550,
+            "id": 3598,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
@@ -318,17 +318,17 @@
             "nameLocation": "174:5:13",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 3548,
+              "id": 3596,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 3543,
+                  "id": 3591,
                   "mutability": "mutable",
                   "name": "_pair",
                   "nameLocation": "188:5:13",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3550,
+                  "scope": 3598,
                   "src": "180:13:13",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -337,7 +337,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 3542,
+                    "id": 3590,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "180:7:13",
@@ -351,12 +351,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 3545,
+                  "id": 3593,
                   "mutability": "mutable",
                   "name": "_futureA",
                   "nameLocation": "202:8:13",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3550,
+                  "scope": 3598,
                   "src": "195:15:13",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -365,7 +365,7 @@
                     "typeString": "uint32"
                   },
                   "typeName": {
-                    "id": 3544,
+                    "id": 3592,
                     "name": "uint32",
                     "nodeType": "ElementaryTypeName",
                     "src": "195:6:13",
@@ -378,12 +378,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 3547,
+                  "id": 3595,
                   "mutability": "mutable",
                   "name": "_futureTime",
                   "nameLocation": "219:11:13",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3550,
+                  "scope": 3598,
                   "src": "212:18:13",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -392,7 +392,7 @@
                     "typeString": "uint40"
                   },
                   "typeName": {
-                    "id": 3546,
+                    "id": 3594,
                     "name": "uint40",
                     "nodeType": "ElementaryTypeName",
                     "src": "212:6:13",
@@ -407,12 +407,12 @@
               "src": "179:52:13"
             },
             "returnParameters": {
-              "id": 3549,
+              "id": 3597,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "240:0:13"
             },
-            "scope": 3556,
+            "scope": 3604,
             "src": "165:76:13",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -420,7 +420,7 @@
           },
           {
             "functionSelector": "6864a4b3",
-            "id": 3555,
+            "id": 3603,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
@@ -428,17 +428,17 @@
             "nameLocation": "255:9:13",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 3553,
+              "id": 3601,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 3552,
+                  "id": 3600,
                   "mutability": "mutable",
                   "name": "_pair",
                   "nameLocation": "273:5:13",
                   "nodeType": "VariableDeclaration",
-                  "scope": 3555,
+                  "scope": 3603,
                   "src": "265:13:13",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -447,7 +447,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 3551,
+                    "id": 3599,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "265:7:13",
@@ -463,19 +463,19 @@
               "src": "264:15:13"
             },
             "returnParameters": {
-              "id": 3554,
+              "id": 3602,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "288:0:13"
             },
-            "scope": 3556,
+            "scope": 3604,
             "src": "246:43:13",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 3557,
+        "scope": 3605,
         "src": "105:191:13",
         "usedErrors": []
       }
@@ -488,7 +488,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.9",
-  "updatedAt": "2022-09-06T06:14:50.375Z",
+  "updatedAt": "2022-12-01T10:31:15.595Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

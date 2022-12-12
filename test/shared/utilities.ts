@@ -4,11 +4,15 @@ import {
   BigNumber,
   bigNumberify,
   getAddress,
+  getCreate2Address,
   keccak256,
   defaultAbiCoder,
   toUtf8Bytes,
-  solidityPack
+  solidityPack,
+  solidityKeccak256,
+  AbiCoder
 } from 'ethers/utils'
+import { pack } from 'ethers/utils/solidity'
 
 const PERMIT_TYPEHASH = keccak256(
   toUtf8Bytes('Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)')
@@ -33,20 +37,25 @@ function getDomainSeparator(name: string, tokenAddress: string, chainId: number)
   )
 }
 
-export function getCreate2Address(
+export function getPairAddress(
   factoryAddress: string,
   [tokenA, tokenB]: [string, string],
-  bytecode: string
+  creationCode: string
 ): string {
   const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
-  const create2Inputs = [
-    '0xff',
-    factoryAddress,
-    keccak256(solidityPack(['address', 'address'], [token0, token1])),
-    keccak256(bytecode)
-  ]
-  const sanitizedInputs = `0x${create2Inputs.map(i => i.slice(2)).join('')}`
-  return getAddress(`0x${keccak256(sanitizedInputs).slice(-40)}`)
+  const saltHex = keccak256(solidityPack(['address', 'address'], [token0, token1]));
+  const bytecode = buildBytecode(['address', 'address'], [token0, token1], creationCode);
+  return getCreate2Address({"from": factoryAddress, "salt": saltHex, "initCode": bytecode})
+  }
+
+function buildBytecode(
+  constructorTypes: any[],
+  constructorArgs: any[],
+  contractBytecode: string,
+) {
+  return `${contractBytecode}${defaultAbiCoder.encode(constructorTypes, constructorArgs).slice(
+    2,
+  )}`
 }
 
 export async function getApprovalDigest(
